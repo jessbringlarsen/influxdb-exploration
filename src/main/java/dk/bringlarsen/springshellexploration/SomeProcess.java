@@ -27,7 +27,7 @@ public class SomeProcess {
             try {
                 stopProcessing = doProcess();
                 stopWatch.stop();
-                log.info("completed: {}, of: {}, processed: {}, in: {}",
+                log.info("completed: {}, of: {}, processed: {}, in: {} ms",
                         work,
                         workCount,
                         new Random().nextInt(10000, 20000),

@@ -27,11 +27,7 @@ public class SomeProcess {
             try {
                 stopProcessing = doProcess();
                 stopWatch.stop();
-                log.info("completed: {}, of: {}, processed: {}, in: {} ms",
-                        work,
-                        workCount,
-                        new Random().nextInt(10000, 20000),
-                        stopWatch.getTotalTimeMillis());
+                log.info("processed={} time={}ms", 8000, stopWatch.getTotalTimeMillis());
             } finally {
                 MDC.remove("thread");
             }
@@ -46,7 +42,7 @@ public class SomeProcess {
 
     private boolean doProcess() {
         try {
-            Thread.sleep(new Random().nextInt(1000, 5000));
+            Thread.sleep(new Random().nextInt(WorkConfiguration.lowerBound.get(), WorkConfiguration.upperBound.get()));
         } catch (InterruptedException e) {
             log.warn("Thread {} stopped", threadId);
             return true;

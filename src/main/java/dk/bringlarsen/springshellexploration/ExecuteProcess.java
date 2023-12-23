@@ -39,5 +39,11 @@ public class ExecuteProcess {
         threads.forEach(Thread::interrupt);
         threads.clear();
     }
+
+    @ShellMethod(key = { "up"}, value = "Increase processing time by one second")
+    public void up() {
+        WorkConfiguration.lowerBound.addAndGet(1000);
+        WorkConfiguration.upperBound.addAndGet(1000);
+    }
 }
 

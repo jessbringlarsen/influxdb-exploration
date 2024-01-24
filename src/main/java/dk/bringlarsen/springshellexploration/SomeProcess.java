@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
 import java.util.Random;
-import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE;
 
@@ -16,37 +16,27 @@ import static org.springframework.beans.factory.config.ConfigurableBeanFactory.S
 @Scope(value = SCOPE_PROTOTYPE)
 public class SomeProcess {
 
+    static AtomicInteger threadId = new AtomicInteger(0);
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    private final UUID threadId = UUID.randomUUID();
+    static AtomicInteger lowerBound = new AtomicInteger(10000);
+    static AtomicInteger upperBound = new AtomicInteger(15000);
 
     public void execute(int workCount) {
         boolean stopProcessing = false;
-        for (int work = 1; work <= workCount && !stopProcessing; work++) {
-            StopWatch stopWatch = startStopWatch();
-            MDC.put("thread", threadId.toString());
-            try {
+        try {
+            MDC.put("thread", String.valueOf(threadId.addAndGet(1)));
+            for (int work = 1; work <= workCount && !stopProcessing; work++) {
                 stopProcessing = doProcess();
-                stopWatch.stop();
-                log.info("completed: {}, of: {}, processed: {}, in: {} ms",
-                        work,
-                        workCount,
-                        new Random().nextInt(10000, 20000),
-                        stopWatch.getTotalTimeMillis());
-            } finally {
-                MDC.remove("thread");
             }
+        } finally {
+            MDC.remove("thread");
         }
-    }
-
-    private StopWatch startStopWatch() {
-        StopWatch stopWatch = new StopWatch(this.toString());
-        stopWatch.start();
-        return stopWatch;
     }
 
     private boolean doProcess() {
         try {
-            Thread.sleep(new Random().nextInt(1000, 5000));
+            Thread.sleep(1000);
+            log.info("processed={}", new Random().nextInt(lowerBound.get(), upperBound.get()));
         } catch (InterruptedException e) {
             log.warn("Thread {} stopped", threadId);
             return true;

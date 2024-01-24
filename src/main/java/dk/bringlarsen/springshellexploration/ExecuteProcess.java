@@ -39,5 +39,16 @@ public class ExecuteProcess {
         threads.forEach(Thread::interrupt);
         threads.clear();
     }
+
+    @ShellMethod(key = { "up" }, value = "Increase items processed by x")
+    public void up(@ShellOption int items) {
+        SomeProcess.upperBound.addAndGet(items);
+    }
+
+    @ShellMethod(key = { "down" }, value = "Decrease items processed by x")
+    public void down(@ShellOption int items) {
+        SomeProcess.upperBound.updateAndGet(value ->
+                Math.max(value - items, SomeProcess.lowerBound.get() + 1));
+    }
 }
 

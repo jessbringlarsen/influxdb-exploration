@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-java</artifactId>
-			<version>6.10.0</version>
+			<version>6.12.0</version>
 		</dependency>
 
 		<dependency>
@@ -39,24 +39,24 @@
 		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
-			<artifactId>testcontainers</artifactId>
-			<version>1.19.3</version>
+			<artifactId>junit-jupiter</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
-			<artifactId>junit-jupiter</artifactId>
-			<version>1.19.3</version>
+			<artifactId>testcontainers</artifactId>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>influxdb</artifactId>
-			<version>1.19.3</version>
 			<scope>test</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
@@ -88,5 +88,4 @@
 			</snapshots>
 		</repository>
 	</repositories>
-
 </project>

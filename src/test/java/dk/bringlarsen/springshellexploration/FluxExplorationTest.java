@@ -2,6 +2,7 @@ package dk.bringlarsen.springshellexploration;
 
 import com.influxdb.client.*;
 import com.influxdb.client.domain.WritePrecision;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.InfluxDBContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -20,7 +21,8 @@ class FluxExplorationTest {
     final InfluxDBContainer<?> influxDBContainer = new InfluxDBContainer<>(DockerImageName.parse("influxdb:2.7.5"));
 
     @Test
-    void testGroupBy() {
+    @DisplayName("expect results to be grouped by tag")
+    void testCase1() {
         try (InfluxDBClient influxDBClient = createClient(influxDBContainer)) {
             writeTemperature(influxDBClient,
                     Temperature.create().withLocation("south").withTemperature(6),
@@ -30,9 +32,6 @@ class FluxExplorationTest {
             String query = String.format("""
                     from(bucket: "%s")
                        |> range(start: -5m)
-                       |> filter(fn: (r) => r["_measurement"] == "temperature")
-                       |> filter(fn: (r) => r["_field"] == "value")
-                       |> group(columns: ["location"])
                        |> mean()""", influxDBContainer.getBucket());
 
             List<Temperature> result = executeQuery(influxDBClient, query);

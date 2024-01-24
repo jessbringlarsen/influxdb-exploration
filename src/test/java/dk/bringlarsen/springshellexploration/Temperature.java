@@ -3,8 +3,6 @@ package dk.bringlarsen.springshellexploration;
 import com.influxdb.annotations.Column;
 import com.influxdb.annotations.Measurement;
 
-import java.time.Instant;
-
 @Measurement(name = "temperature")
 public class Temperature {
 
@@ -13,9 +11,6 @@ public class Temperature {
 
     @Column
     Double value;
-
-    @Column(timestamp = true)
-    Instant time;
 
     static Temperature create() {
         return new Temperature();
@@ -26,8 +21,8 @@ public class Temperature {
         return this;
     }
 
-    Temperature withTemperature(int temprature) {
-        this.value = Double.valueOf(temprature);
+    Temperature withTemperature(int temperature) {
+        this.value = Double.valueOf(temperature);
         return this;
     }
 }

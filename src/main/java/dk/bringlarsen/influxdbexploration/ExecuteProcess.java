@@ -1,4 +1,4 @@
-package dk.bringlarsen.springshellexploration;
+package dk.bringlarsen.influxdbexploration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

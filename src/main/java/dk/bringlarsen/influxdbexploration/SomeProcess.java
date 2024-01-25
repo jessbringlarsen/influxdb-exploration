@@ -1,11 +1,10 @@
-package dk.bringlarsen.springshellexploration;
+package dk.bringlarsen.influxdbexploration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StopWatch;
 
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;

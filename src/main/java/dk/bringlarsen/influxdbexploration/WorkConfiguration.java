@@ -1,4 +1,4 @@
-package dk.bringlarsen.springshellexploration;
+package dk.bringlarsen.influxdbexploration;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

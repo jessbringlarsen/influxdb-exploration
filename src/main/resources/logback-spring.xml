@@ -16,7 +16,7 @@
     <root level="info">
         <appender-ref ref="CONSOLE" />
     </root>
-    <logger name="dk.bringlarsen.springshellexploration.SomeProcess" level="info" additivity="false">
+    <logger name="dk.bringlarsen.influxdbexploration.SomeProcess" level="info" additivity="false">
         <appender-ref ref="FILE" />
     </logger>
 </configuration>

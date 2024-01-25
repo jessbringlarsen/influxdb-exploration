@@ -1,4 +1,4 @@
-package dk.bringlarsen.springshellexploration;
+package dk.bringlarsen.influxdbexploration;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

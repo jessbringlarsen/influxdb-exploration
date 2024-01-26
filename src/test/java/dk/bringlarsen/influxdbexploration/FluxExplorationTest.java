@@ -11,9 +11,25 @@ import org.testcontainers.utility.DockerImageName;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static dk.bringlarsen.influxdbexploration.PerformanceMeasurement.create;
+import static dk.bringlarsen.influxdbexploration.PerformanceMeasurement.performanceMeasurement;
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ *
+ * Explore Flux queries acting on this data:
+ *
+ * Time (Minutes Ago)
+ * |----|----|----|----|----|
+ * 5    4    3    2    1    0 (Present)
+ *      |    |    |    |
+ *      |    |    |    +---> host=host-2, thread=2, processedItems=1
+ *      |    |    |
+ *      |    |    +--------> host=host-1, thread=2, processedItems=3
+ *      |    |
+ *      |    +-------------> host=host-2, thread=1, processedItems=2
+ *      |
+ *      +------------------> host=host-1, thread=1, processedItems=6
+ */
 @Testcontainers
 class FluxExplorationTest {
 
@@ -25,10 +41,10 @@ class FluxExplorationTest {
     void setup() {
         influxDB = new InfluxDbApi(influxDBContainer);
         influxDB.cleanAndWrite(
-                create().withHost("host-1").withThread("1").withProcessedItems(6).withTimeMinusMinutes(4),
-                create().withHost("host-2").withThread("1").withProcessedItems(2).withTimeMinusMinutes(3),
-                create().withHost("host-1").withThread("2").withProcessedItems(3).withTimeMinusMinutes(2),
-                create().withHost("host-2").withThread("2").withProcessedItems(1).withTimeMinusMinutes(1));
+                performanceMeasurement().withHost("host-1").withThread("1").withProcessedItems(6).withTimeMinusMinutes(4),
+                performanceMeasurement().withHost("host-2").withThread("1").withProcessedItems(2).withTimeMinusMinutes(3),
+                performanceMeasurement().withHost("host-1").withThread("2").withProcessedItems(3).withTimeMinusMinutes(2),
+                performanceMeasurement().withHost("host-2").withThread("2").withProcessedItems(1).withTimeMinusMinutes(1));
     }
 
     @Test
@@ -42,8 +58,8 @@ class FluxExplorationTest {
 
         assertThat(result)
                 .hasSize(2)
-                .anyMatch(withThread(create().withThread("1").withProcessedItems(4)))
-                .anyMatch(withThread(create().withThread("2").withProcessedItems(2)));
+                .anyMatch(matchThread(performanceMeasurement().withThread("1").withProcessedItems(4)))
+                .anyMatch(matchThread(performanceMeasurement().withThread("2").withProcessedItems(2)));
 
     }
 
@@ -58,8 +74,8 @@ class FluxExplorationTest {
 
         assertThat(result)
                 .hasSize(2)
-                .anyMatch(withHost(create().withHost("host-1").withProcessedItems(9)))
-                .anyMatch(withHost(create().withHost("host-2").withProcessedItems(3)));
+                .anyMatch(matchHost(performanceMeasurement().withHost("host-1").withProcessedItems(9)))
+                .anyMatch(matchHost(performanceMeasurement().withHost("host-2").withProcessedItems(3)));
     }
 
     @Test
@@ -74,31 +90,32 @@ class FluxExplorationTest {
 
         assertThat(result)
                 .hasSize(2)
-                .anyMatch(withHost(create().withHost("host-1").withProcessedItems(6)))
-                .anyMatch(withHost(create().withHost("host-2").withProcessedItems(2)));
+                .anyMatch(matchHost(performanceMeasurement().withHost("host-1").withProcessedItems(6)))
+                .anyMatch(matchHost(performanceMeasurement().withHost("host-2").withProcessedItems(2)));
     }
 
     @Test
-    @DisplayName("expect results are down-sampled for every fire minutes")
+    @DisplayName("calculate the mean (average) items processed by each host in a six minute window")
     void testCase4() {
         List<PerformanceMeasurement> result = influxDB.executeQuery(String.format("""
                 from(bucket: "%s")
-                   |> range(start: -5m)
-                   |> group(columns: ["host"])
-                   |> aggregateWindow(every: 5m, fn: sum, createEmpty: false)
-                """, influxDBContainer.getBucket()));
+                  |> range(start: -5m)
+                  |> group(columns: ["host"])
+                  |> aggregateWindow(every: 6m, fn: mean, createEmpty: false)
+                  |> yield(name: "mean")
+                    """, influxDBContainer.getBucket()));
 
         assertThat(result)
                 .hasSize(2)
-                .anyMatch(withHost(create().withHost("host-1").withProcessedItems(9)))
-                .anyMatch(withHost(create().withHost("host-2").withProcessedItems(3)));
+                .anyMatch(matchHost(performanceMeasurement().withHost("host-1").withProcessedItems(4.5)))
+                .anyMatch(matchHost(performanceMeasurement().withHost("host-2").withProcessedItems(1.5)));
     }
 
-    Predicate<PerformanceMeasurement> withThread(PerformanceMeasurement performanceMeasurement) {
+    Predicate<PerformanceMeasurement> matchThread(PerformanceMeasurement performanceMeasurement) {
         return m -> m.thread.equals(performanceMeasurement.thread) && m.processedItems.equals(performanceMeasurement.processedItems);
     }
 
-    Predicate<PerformanceMeasurement> withHost(PerformanceMeasurement performanceMeasurement) {
+    Predicate<PerformanceMeasurement> matchHost(PerformanceMeasurement performanceMeasurement) {
         return m -> m.host.equals(performanceMeasurement.host) && m.processedItems.equals(performanceMeasurement.processedItems);
     }
 }

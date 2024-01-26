@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE;
 
@@ -15,29 +14,29 @@ import static org.springframework.beans.factory.config.ConfigurableBeanFactory.S
 @Scope(value = SCOPE_PROTOTYPE)
 public class SomeProcess {
 
-    static AtomicInteger threadId = new AtomicInteger(0);
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    static AtomicInteger lowerBound = new AtomicInteger(10000);
-    static AtomicInteger upperBound = new AtomicInteger(15000);
 
-    public void execute(int workCount) {
+    public void execute(WorkConfiguration configuration) {
         boolean stopProcessing = false;
         try {
-            MDC.put("thread", String.valueOf(threadId.addAndGet(1)));
-            for (int work = 1; work <= workCount && !stopProcessing; work++) {
-                stopProcessing = doProcess();
+            MDC.put("thread", String.valueOf(configuration.threadId()));
+            MDC.put("host", String.valueOf(configuration.hostId()));
+            for (int work = 1; work <= configuration.itemCountToProcess() && !stopProcessing; work++) {
+                stopProcessing = doProcess(configuration);
             }
         } finally {
             MDC.remove("thread");
+            MDC.remove("host");
         }
     }
 
-    private boolean doProcess() {
+    private boolean doProcess(WorkConfiguration configuration) {
         try {
             Thread.sleep(1000);
-            log.info("processed={}", new Random().nextInt(lowerBound.get(), upperBound.get()));
+            int performanceConfig = configuration.getPerformanceConfig();
+            log.info("processed={}", new Random().nextInt(performanceConfig, performanceConfig + 5000));
         } catch (InterruptedException e) {
-            log.warn("Thread {} stopped", threadId);
+            log.warn("Thread {} stopped", Thread.currentThread().threadId());
             return true;
         }
         return false;

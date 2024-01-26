@@ -25,88 +25,80 @@ class FluxExplorationTest {
     void setup() {
         influxDB = new InfluxDbApi(influxDBContainer);
         influxDB.cleanAndWrite(
-                create().withThread("1").withProcessedItems(6),
-                create().withThread("1").withProcessedItems(2),
-                create().withThread("2").withProcessedItems(3),
-                create().withThread("2").withProcessedItems(1));
+                create().withHost("host-1").withThread("1").withProcessedItems(6).withTimeMinusMinutes(4),
+                create().withHost("host-2").withThread("1").withProcessedItems(2).withTimeMinusMinutes(3),
+                create().withHost("host-1").withThread("2").withProcessedItems(3).withTimeMinusMinutes(2),
+                create().withHost("host-2").withThread("2").withProcessedItems(1).withTimeMinusMinutes(1));
     }
 
     @Test
-    @DisplayName("expect mean results, grouped by tag")
+    @DisplayName("expect results averaged and grouped by thread")
     void testCase1() {
         List<PerformanceMeasurement> result = influxDB.executeQuery(String.format("""
                 from(bucket: "%s")
                    |> range(start: -5m)
+                   |> group(columns: ["thread"])
                    |> mean()""", influxDBContainer.getBucket()));
 
         assertThat(result)
                 .hasSize(2)
-                .anyMatch(withMeasurement(create().withThread("1").withProcessedItems(4)))
-                .anyMatch(withMeasurement(create().withThread("2").withProcessedItems(2)));
+                .anyMatch(withThread(create().withThread("1").withProcessedItems(4)))
+                .anyMatch(withThread(create().withThread("2").withProcessedItems(2)));
 
     }
 
     @Test
-    @DisplayName("expect results summed, grouped by tag")
+    @DisplayName("expect results where processed items are summed up grouped by host")
     void testCase2() {
         List<PerformanceMeasurement> result = influxDB.executeQuery(String.format("""
                 from(bucket: "%s")
                    |> range(start: -5m)
+                   |> group(columns: ["host"])
                    |> sum()""", influxDBContainer.getBucket()));
 
         assertThat(result)
                 .hasSize(2)
-                .anyMatch(withMeasurement(create().withThread("1").withProcessedItems(8)))
-                .anyMatch(withMeasurement(create().withThread("2").withProcessedItems(4)));
+                .anyMatch(withHost(create().withHost("host-1").withProcessedItems(9)))
+                .anyMatch(withHost(create().withHost("host-2").withProcessedItems(3)));
     }
 
     @Test
-    @DisplayName("expect latest results, grouped by tag")
+    @DisplayName("expect 0.99 percentile group by host")
     void testCase3() {
         List<PerformanceMeasurement> result = influxDB.executeQuery(String.format("""
                 from(bucket: "%s")
                    |> range(start: -5m)
-                   |> last()
-                   """, influxDBContainer.getBucket()));
-
-        assertThat(result)
-                .hasSize(2)
-                .anyMatch(withMeasurement(create().withThread("1").withProcessedItems(2)))
-                .anyMatch(withMeasurement(create().withThread("2").withProcessedItems(1)));
-    }
-
-    @Test
-    @DisplayName("expect latest results, grouped by tag")
-    void testCase4() {
-        List<PerformanceMeasurement> result = influxDB.executeQuery(String.format("""
-                from(bucket: "%s")
-                   |> range(start: -5m)
-                   |> window(every: 1m)
+                   |> group(columns: ["host"])
                    |> quantile(q: 0.99)
                    """, influxDBContainer.getBucket()));
 
         assertThat(result)
                 .hasSize(2)
-                .anyMatch(withMeasurement(create().withThread("1").withProcessedItems(6)))
-                .anyMatch(withMeasurement(create().withThread("2").withProcessedItems(3)));
+                .anyMatch(withHost(create().withHost("host-1").withProcessedItems(6)))
+                .anyMatch(withHost(create().withHost("host-2").withProcessedItems(2)));
     }
 
     @Test
-    @DisplayName("expect grouping by tag every five minutes")
-    void testCase5() {
+    @DisplayName("expect results are down-sampled for every fire minutes")
+    void testCase4() {
         List<PerformanceMeasurement> result = influxDB.executeQuery(String.format("""
                 from(bucket: "%s")
                    |> range(start: -5m)
-                   |> aggregateWindow(every: 5m, fn: mean, createEmpty: false)
+                   |> group(columns: ["host"])
+                   |> aggregateWindow(every: 5m, fn: sum, createEmpty: false)
                 """, influxDBContainer.getBucket()));
 
         assertThat(result)
                 .hasSize(2)
-                .anyMatch(withMeasurement(create().withThread("1").withProcessedItems(4)))
-                .anyMatch(withMeasurement(create().withThread("2").withProcessedItems(2)));
+                .anyMatch(withHost(create().withHost("host-1").withProcessedItems(9)))
+                .anyMatch(withHost(create().withHost("host-2").withProcessedItems(3)));
     }
 
-    Predicate<PerformanceMeasurement> withMeasurement(PerformanceMeasurement performanceMeasurement) {
+    Predicate<PerformanceMeasurement> withThread(PerformanceMeasurement performanceMeasurement) {
         return m -> m.thread.equals(performanceMeasurement.thread) && m.processedItems.equals(performanceMeasurement.processedItems);
+    }
+
+    Predicate<PerformanceMeasurement> withHost(PerformanceMeasurement performanceMeasurement) {
+        return m -> m.host.equals(performanceMeasurement.host) && m.processedItems.equals(performanceMeasurement.processedItems);
     }
 }

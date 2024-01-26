@@ -5,10 +5,15 @@ import com.influxdb.annotations.Measurement;
 import org.testcontainers.shaded.org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.testcontainers.shaded.org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 
 @Measurement(name = "performance")
 public class PerformanceMeasurement {
+
+    @Column(tag = true)
+    String host = "host-1";
 
     @Column(tag = true)
     String thread;
@@ -21,6 +26,11 @@ public class PerformanceMeasurement {
 
     static PerformanceMeasurement create() {
         return new PerformanceMeasurement();
+    }
+
+    PerformanceMeasurement withHost(String host) {
+        this.host = host;
+        return this;
     }
 
     PerformanceMeasurement withThread(String thread) {
@@ -36,6 +46,10 @@ public class PerformanceMeasurement {
     PerformanceMeasurement withTime(Instant time) {
         this.time = time;
         return this;
+    }
+
+    PerformanceMeasurement withTimeMinusMinutes(int minutes) {
+        return withTime(Instant.now(Clock.systemUTC()).minus(Duration.ofMinutes(minutes)));
     }
 
     @Override

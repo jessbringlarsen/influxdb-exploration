@@ -15,7 +15,6 @@ import java.util.List;
 public class ExecuteProcess {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-
     private final ApplicationContext context;
     private final List<Thread> threads = new ArrayList<>();
 
@@ -25,12 +24,20 @@ public class ExecuteProcess {
     }
 
     @ShellMethod(key = { "process", "p"}, value = "Execute expensive process")
-    public String process(@ShellOption(defaultValue = "10") int workCount) {
-        threads.add(Thread.startVirtualThread(() -> {
-            SomeProcess process = context.getBean(SomeProcess.class);
-            process.execute(workCount);
-        }));
-        return "begin processing, itemCount: " + workCount;
+    public String process(@ShellOption(help = "How many items to process" ,defaultValue = "10") int itemCount,
+                          @ShellOption(help = "Host count", defaultValue = "1") int hostCount,
+                          @ShellOption(help = "Thread count", defaultValue = "1") int threadCount) {
+        for (int hostCounter = 1; hostCounter <= hostCount; hostCounter++) {
+            for (int threadCounter = 1; threadCounter <= threadCount; threadCounter++) {
+                final int hostId = hostCounter;
+                final int threadId = threadCounter;
+                threads.add(Thread.startVirtualThread(() -> {
+                    SomeProcess process = context.getBean(SomeProcess.class);
+                    process.execute(new WorkConfiguration(hostId, threadId, itemCount));
+                }));
+            }
+        }
+        return String.format("%s host(s) with %s thread(s) are working on %s items each", hostCount, threadCount, itemCount);
     }
 
     @ShellMethod(key = { "stop", "s"}, value = "Stop processing")
@@ -38,17 +45,6 @@ public class ExecuteProcess {
         log.info("Stopping {} threads", threads.size());
         threads.forEach(Thread::interrupt);
         threads.clear();
-    }
-
-    @ShellMethod(key = { "up" }, value = "Increase items processed by x")
-    public void up(@ShellOption int items) {
-        SomeProcess.upperBound.addAndGet(items);
-    }
-
-    @ShellMethod(key = { "down" }, value = "Decrease items processed by x")
-    public void down(@ShellOption int items) {
-        SomeProcess.upperBound.updateAndGet(value ->
-                Math.max(value - items, SomeProcess.lowerBound.get() + 1));
     }
 }
 

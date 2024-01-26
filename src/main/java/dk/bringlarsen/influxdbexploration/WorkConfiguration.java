@@ -1,9 +1,10 @@
 package dk.bringlarsen.influxdbexploration;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Random;
 
-public class WorkConfiguration {
+record WorkConfiguration(int hostId, int threadId, int itemCountToProcess) {
 
-    public static AtomicInteger lowerBound = new AtomicInteger(1000);
-    public static AtomicInteger upperBound = new AtomicInteger(5000);
+    int getPerformanceConfig() {
+        return new Random().nextInt(10000, 50000);
+    }
 }

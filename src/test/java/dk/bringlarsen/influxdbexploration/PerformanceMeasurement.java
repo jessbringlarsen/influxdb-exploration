@@ -39,12 +39,12 @@ public class PerformanceMeasurement {
     }
 
     PerformanceMeasurement withProcessedItems(int processedItems) {
-        this.processedItems = Double.valueOf(processedItems);
+        this.processedItems = (double) processedItems;
         return this;
     }
 
     PerformanceMeasurement withProcessedItems(double processedItems) {
-        this.processedItems = Double.valueOf(processedItems);
+        this.processedItems = processedItems;
         return this;
     }
 

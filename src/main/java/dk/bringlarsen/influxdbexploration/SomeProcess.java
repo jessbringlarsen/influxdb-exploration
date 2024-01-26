@@ -21,8 +21,9 @@ public class SomeProcess {
         try {
             MDC.put("thread", String.valueOf(configuration.threadId()));
             MDC.put("host", String.valueOf(configuration.hostId()));
+            int itemsProcessed = configuration.getPerformanceConfig();
             for (int work = 1; work <= configuration.itemCountToProcess() && !stopProcessing; work++) {
-                stopProcessing = doProcess(configuration);
+                stopProcessing = doProcess(itemsProcessed);
             }
         } finally {
             MDC.remove("thread");
@@ -30,11 +31,10 @@ public class SomeProcess {
         }
     }
 
-    private boolean doProcess(WorkConfiguration configuration) {
+    private boolean doProcess(int itemsProcessed) {
         try {
             Thread.sleep(1000);
-            int performanceConfig = configuration.getPerformanceConfig();
-            log.info("processed={}", new Random().nextInt(performanceConfig, performanceConfig + 5000));
+            log.info("processed={}", new Random().nextInt(itemsProcessed, itemsProcessed + 5000));
         } catch (InterruptedException e) {
             log.warn("Thread {} stopped", Thread.currentThread().threadId());
             return true;

@@ -24,7 +24,7 @@ public class PerformanceMeasurement {
     @Column(timestamp = true)
     Instant time;
 
-    static PerformanceMeasurement create() {
+    static PerformanceMeasurement performanceMeasurement() {
         return new PerformanceMeasurement();
     }
 
@@ -39,6 +39,11 @@ public class PerformanceMeasurement {
     }
 
     PerformanceMeasurement withProcessedItems(int processedItems) {
+        this.processedItems = Double.valueOf(processedItems);
+        return this;
+    }
+
+    PerformanceMeasurement withProcessedItems(double processedItems) {
         this.processedItems = Double.valueOf(processedItems);
         return this;
     }

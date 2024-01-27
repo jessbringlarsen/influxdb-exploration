@@ -60,7 +60,7 @@ class FluxExplorationTest {
                 .groupBy("thread")
                 .mean();
 
-        List<PerformanceMeasurement> result = influxDB.executeQuery(query.toString());
+        List<PerformanceMeasurement> result = influxDB.executeQuery(query);
 
         assertThat(result)
                 .hasSize(2)
@@ -77,7 +77,7 @@ class FluxExplorationTest {
                 .groupBy("host")
                 .sum();
 
-        List<PerformanceMeasurement> result = influxDB.executeQuery(query.toString());
+        List<PerformanceMeasurement> result = influxDB.executeQuery(query);
 
         assertThat(result)
                 .hasSize(2)
@@ -93,7 +93,7 @@ class FluxExplorationTest {
                 .groupBy("host")
                 .quantile(Float.valueOf("0.99"));
 
-        List<PerformanceMeasurement> result = influxDB.executeQuery(query.toString());
+        List<PerformanceMeasurement> result = influxDB.executeQuery(query);
 
         assertThat(result)
                 .hasSize(2)
@@ -110,7 +110,7 @@ class FluxExplorationTest {
                 .aggregateWindow(6L, ChronoUnit.MINUTES, "mean").withCreateEmpty(false)
                 .yield("mean");
 
-        List<PerformanceMeasurement> result = influxDB.executeQuery(query.toString());
+        List<PerformanceMeasurement> result = influxDB.executeQuery(query);
 
         assertThat(result)
                 .hasSize(2)

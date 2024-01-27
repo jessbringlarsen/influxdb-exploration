@@ -4,6 +4,7 @@ import com.influxdb.client.*;
 import com.influxdb.client.domain.DeletePredicateRequest;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.query.FluxTable;
+import com.influxdb.query.dsl.Flux;
 import org.testcontainers.containers.InfluxDBContainer;
 
 import java.time.OffsetDateTime;
@@ -52,6 +53,10 @@ class InfluxDbApi {
             QueryApi queryApi = client.getQueryApi();
             return queryApi.query(query, PerformanceMeasurement.class);
         }
+    }
+
+    List<PerformanceMeasurement> executeQuery(Flux query) {
+        return executeQuery(query.toString());
     }
 
     List<FluxTable> executeNativeQuery(String query) {

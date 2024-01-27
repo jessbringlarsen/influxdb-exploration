@@ -54,7 +54,8 @@ public class PerformanceMeasurement {
     }
 
     PerformanceMeasurement withTimeMinusMinutes(int minutes) {
-        return withTime(Instant.now(Clock.systemUTC()).minus(Duration.ofMinutes(minutes)));
+        return withTime(Instant.now(Clock.systemUTC())
+                .minus(Duration.ofMinutes(minutes).withSeconds(0)));
     }
 
     @Override

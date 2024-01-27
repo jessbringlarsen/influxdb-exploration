@@ -1,5 +1,10 @@
 package dk.bringlarsen.influxdbexploration;
 
+import com.influxdb.query.dsl.Flux;
+import com.influxdb.query.dsl.functions.MeanFlux;
+import com.influxdb.query.dsl.functions.QuantileFlux;
+import com.influxdb.query.dsl.functions.SumFlux;
+import com.influxdb.query.dsl.functions.YieldFlux;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,6 +13,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -15,9 +21,8 @@ import static dk.bringlarsen.influxdbexploration.PerformanceMeasurement.performa
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- *
  * Explore Flux queries acting on this data:
- *
+ * <p>
  * Time (Minutes Ago)
  * |----|----|----|----|----|
  * 5    4    3    2    1    0 (Present)
@@ -50,11 +55,12 @@ class FluxExplorationTest {
     @Test
     @DisplayName("expect results averaged and grouped by thread")
     void testCase1() {
-        List<PerformanceMeasurement> result = influxDB.executeQuery(String.format("""
-                from(bucket: "%s")
-                   |> range(start: -5m)
-                   |> group(columns: ["thread"])
-                   |> mean()""", influxDBContainer.getBucket()));
+        MeanFlux query = Flux.from(influxDBContainer.getBucket())
+                .range(-5L, ChronoUnit.MINUTES)
+                .groupBy("thread")
+                .mean();
+
+        List<PerformanceMeasurement> result = influxDB.executeQuery(query.toString());
 
         assertThat(result)
                 .hasSize(2)
@@ -66,11 +72,12 @@ class FluxExplorationTest {
     @Test
     @DisplayName("expect results where processed items are summed up grouped by host")
     void testCase2() {
-        List<PerformanceMeasurement> result = influxDB.executeQuery(String.format("""
-                from(bucket: "%s")
-                   |> range(start: -5m)
-                   |> group(columns: ["host"])
-                   |> sum()""", influxDBContainer.getBucket()));
+        SumFlux query = Flux.from(influxDBContainer.getBucket())
+                .range(-5L, ChronoUnit.MINUTES)
+                .groupBy("host")
+                .sum();
+
+        List<PerformanceMeasurement> result = influxDB.executeQuery(query.toString());
 
         assertThat(result)
                 .hasSize(2)
@@ -81,12 +88,12 @@ class FluxExplorationTest {
     @Test
     @DisplayName("expect 0.99 percentile group by host")
     void testCase3() {
-        List<PerformanceMeasurement> result = influxDB.executeQuery(String.format("""
-                from(bucket: "%s")
-                   |> range(start: -5m)
-                   |> group(columns: ["host"])
-                   |> quantile(q: 0.99)
-                   """, influxDBContainer.getBucket()));
+        QuantileFlux query = Flux.from(influxDBContainer.getBucket())
+                .range(-5L, ChronoUnit.MINUTES)
+                .groupBy("host")
+                .quantile(Float.valueOf("0.99"));
+
+        List<PerformanceMeasurement> result = influxDB.executeQuery(query.toString());
 
         assertThat(result)
                 .hasSize(2)
@@ -97,13 +104,13 @@ class FluxExplorationTest {
     @Test
     @DisplayName("calculate the mean (average) items processed by each host in a six minute window")
     void testCase4() {
-        List<PerformanceMeasurement> result = influxDB.executeQuery(String.format("""
-                from(bucket: "%s")
-                  |> range(start: -5m)
-                  |> group(columns: ["host"])
-                  |> aggregateWindow(every: 6m, fn: mean, createEmpty: false)
-                  |> yield(name: "mean")
-                    """, influxDBContainer.getBucket()));
+        YieldFlux query = Flux.from(influxDBContainer.getBucket())
+                .range(-5L, ChronoUnit.MINUTES)
+                .groupBy("host")
+                .aggregateWindow(6L, ChronoUnit.MINUTES, "mean").withCreateEmpty(false)
+                .yield("mean");
+
+        List<PerformanceMeasurement> result = influxDB.executeQuery(query.toString());
 
         assertThat(result)
                 .hasSize(2)

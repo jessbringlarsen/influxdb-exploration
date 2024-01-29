@@ -1,31 +1,32 @@
-package dk.bringlarsen.influxdbexploration;
+package dk.bringlarsen.influxdbexploration.api;
 
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.QueryApi;
 import com.influxdb.query.FluxTable;
 import com.influxdb.query.dsl.Flux;
+import dk.bringlarsen.influxdbexploration.PerformanceMeasurement;
 import org.testcontainers.containers.InfluxDBContainer;
 
 import java.util.List;
 
-class InfluxDbQueryApi extends InfluxDbApi {
+public class InfluxDbQueryApi extends InfluxDbApi {
 
-    InfluxDbQueryApi(InfluxDBContainer<?> influxDBContainer) {
+    public InfluxDbQueryApi(InfluxDBContainer<?> influxDBContainer) {
         super(influxDBContainer);
     }
 
-    List<PerformanceMeasurement> executeQuery(String query) {
+    public List<PerformanceMeasurement> executeQuery(String query) {
         try (InfluxDBClient client = createClient()) {
             QueryApi queryApi = client.getQueryApi();
             return queryApi.query(query, PerformanceMeasurement.class);
         }
     }
 
-    List<PerformanceMeasurement> executeQuery(Flux query) {
+    public List<PerformanceMeasurement> executeQuery(Flux query) {
         return executeQuery(query.toString());
     }
 
-    List<FluxTable> executeNativeQuery(String query) {
+    public List<FluxTable> executeNativeQuery(String query) {
         try (InfluxDBClient client = createClient()) {
             QueryApi queryApi = client.getQueryApi();
             return queryApi.query(query);

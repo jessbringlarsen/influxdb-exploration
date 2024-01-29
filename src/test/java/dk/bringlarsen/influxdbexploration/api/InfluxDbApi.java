@@ -1,11 +1,11 @@
-package dk.bringlarsen.influxdbexploration;
+package dk.bringlarsen.influxdbexploration.api;
 
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.InfluxDBClientOptions;
 import org.testcontainers.containers.InfluxDBContainer;
 
-abstract class InfluxDbApi {
+public abstract class InfluxDbApi {
 
     final InfluxDBContainer<?> influxDBContainer;
 
@@ -13,7 +13,7 @@ abstract class InfluxDbApi {
         this.influxDBContainer = influxDBContainer;
     }
 
-    InfluxDBClient createClient() {
+    public InfluxDBClient createClient() {
         final InfluxDBClientOptions influxDBClientOptions = InfluxDBClientOptions
                 .builder()
                 .url(influxDBContainer.getUrl())

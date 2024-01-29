@@ -5,6 +5,8 @@ import com.influxdb.query.dsl.functions.MeanFlux;
 import com.influxdb.query.dsl.functions.QuantileFlux;
 import com.influxdb.query.dsl.functions.SumFlux;
 import com.influxdb.query.dsl.functions.YieldFlux;
+import dk.bringlarsen.influxdbexploration.api.InfluxDbQueryApi;
+import dk.bringlarsen.influxdbexploration.api.InfluxDbWriteApi;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -46,5 +46,10 @@ public class ExecuteProcess {
         threads.forEach(Thread::interrupt);
         threads.clear();
     }
+
+    @ShellMethod(key = { "status"}, value = "How many threads are executing.")
+    public void status() {
+        log.info("Currently {} threads are executing", threads.size());
+    }
 }
 

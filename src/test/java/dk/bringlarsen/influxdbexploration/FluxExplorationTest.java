@@ -40,12 +40,14 @@ class FluxExplorationTest {
 
     @Container
     static final InfluxDBContainer<?> influxDBContainer = new InfluxDBContainer<>(DockerImageName.parse("influxdb:2.7.5"));
-    InfluxDbApi influxDB;
+    InfluxDbWriteApi writeApi;
+    InfluxDbQueryApi queryApi;
 
     @BeforeEach
     void setup() {
-        influxDB = new InfluxDbApi(influxDBContainer);
-        influxDB.cleanAndWrite(
+        queryApi = new InfluxDbQueryApi(influxDBContainer);
+        writeApi = new InfluxDbWriteApi(influxDBContainer);
+        writeApi.cleanAndWrite(
                 performanceMeasurement().withHost("host-1").withThread("1").withProcessedItems(6).withTimeMinusMinutes(4),
                 performanceMeasurement().withHost("host-2").withThread("1").withProcessedItems(2).withTimeMinusMinutes(3),
                 performanceMeasurement().withHost("host-1").withThread("2").withProcessedItems(3).withTimeMinusMinutes(2),
@@ -60,7 +62,7 @@ class FluxExplorationTest {
                 .groupBy("thread")
                 .mean();
 
-        List<PerformanceMeasurement> result = influxDB.executeQuery(query);
+        List<PerformanceMeasurement> result = queryApi.executeQuery(query);
 
         assertThat(result)
                 .hasSize(2)
@@ -77,7 +79,7 @@ class FluxExplorationTest {
                 .groupBy("host")
                 .sum();
 
-        List<PerformanceMeasurement> result = influxDB.executeQuery(query);
+        List<PerformanceMeasurement> result = queryApi.executeQuery(query);
 
         assertThat(result)
                 .hasSize(2)
@@ -93,7 +95,7 @@ class FluxExplorationTest {
                 .groupBy("host")
                 .quantile(Float.valueOf("0.99"));
 
-        List<PerformanceMeasurement> result = influxDB.executeQuery(query);
+        List<PerformanceMeasurement> result = queryApi.executeQuery(query);
 
         assertThat(result)
                 .hasSize(2)
@@ -110,7 +112,7 @@ class FluxExplorationTest {
                 .aggregateWindow(6L, ChronoUnit.MINUTES, "mean").withCreateEmpty(false)
                 .yield("mean");
 
-        List<PerformanceMeasurement> result = influxDB.executeQuery(query);
+        List<PerformanceMeasurement> result = queryApi.executeQuery(query);
 
         assertThat(result)
                 .hasSize(2)

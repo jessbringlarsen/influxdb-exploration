@@ -49,7 +49,7 @@ public class ExecuteProcess {
 
     @ShellMethod(key = { "status"}, value = "How many threads are executing.")
     public void status() {
-        log.info("Currently {} threads are executing", threads.size());
+        long threadsAlive = threads.stream().filter(Thread::isAlive).count();
+        log.info("Currently {} threads are executing", threadsAlive);
     }
 }
-

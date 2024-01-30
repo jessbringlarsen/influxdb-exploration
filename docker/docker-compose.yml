@@ -13,8 +13,8 @@ services:
     environment:
       - DOCKER_INFLUXDB_INIT_MODE=setup
       - DOCKER_INFLUXDB_INIT_ORG=test-org
-      - DOCKER_INFLUXDB_INIT_USERNAME=test-user
-      - DOCKER_INFLUXDB_INIT_PASSWORD=test-password
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=admin-password
       - DOCKER_INFLUXDB_INIT_BUCKET=performance-bucket
       - DOCKER_INFLUXDB_INIT_CLI_CONFIG_NAME=default
 

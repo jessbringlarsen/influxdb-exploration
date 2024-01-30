@@ -1,0 +1,1 @@
+influx auth create --read-buckets -d grafana | grep grafana | awk {'print $3'}

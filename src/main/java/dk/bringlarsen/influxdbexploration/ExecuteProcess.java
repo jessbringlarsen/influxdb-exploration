@@ -1,5 +1,6 @@
 package dk.bringlarsen.influxdbexploration;
 
+import dk.bringlarsen.influxdbexploration.config.StringValueProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +27,10 @@ public class ExecuteProcess {
         this.context = context;
     }
 
-    @ShellMethod(key = { "process", "p"}, value = "Execute expensive process")
-    public String process(@ShellOption(help = "How many items to process" ,defaultValue = "10") int itemCount,
-                          @ShellOption(help = "Host count", defaultValue = "1") int hostCount,
-                          @ShellOption(help = "Thread count", defaultValue = "1") int threadCount) {
+    @ShellMethod(key = { "process"}, value = "Execute expensive process")
+    public String process(@ShellOption(help = "How many items to process" ,defaultValue = "10", valueProvider = StringValueProvider.class) int itemCount,
+                          @ShellOption(help = "Host count", defaultValue = "1", valueProvider = StringValueProvider.class) int hostCount,
+                          @ShellOption(help = "Thread count", defaultValue = "1", valueProvider = StringValueProvider.class) int threadCount) {
         for (int hostCounter = 1; hostCounter <= hostCount; hostCounter++) {
             final int hostId = totalHostCount.addAndGet(1);
             for (int threadCounter = 1; threadCounter <= threadCount; threadCounter++) {
@@ -43,7 +44,7 @@ public class ExecuteProcess {
         return String.format("%s host(s) with %s thread(s) are working on %s items each", hostCount, threadCount, itemCount);
     }
 
-    @ShellMethod(key = { "stop", "s"}, value = "Stop processing")
+    @ShellMethod(key = { "stop"}, value = "Stop processing")
     public void stopAll() {
         log.info("Stopping {} threads", threads.size());
         threads.forEach(Thread::interrupt);

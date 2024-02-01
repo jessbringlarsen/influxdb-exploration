@@ -13,7 +13,7 @@
         </encoder>
     </appender>
 
-    <root level="info">
+    <root level="warn">
         <appender-ref ref="CONSOLE" />
     </root>
     <logger name="dk.bringlarsen.influxdbexploration.SomeProcess" level="info" additivity="false">

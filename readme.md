@@ -1,14 +1,36 @@
 # Personal InfluxDB exploration project
 
-## Running InfluxDB
+This is a personal InfluxDB and Grafana exploration project. The project include InfluxDB and Grafana provisioning and 
+functionality to generate random load data. Lastly tests exists that explore the Flux query language.
 
-Do a local install or use [Docker](https://docs.influxdata.com/influxdb/v2/install/?t=Docker) using the following command to set up a default user and organization: 
+## Build
 
-    docker run --env=DOCKER_INFLUXDB_INIT_USERNAME=test-user --env=DOCKER_INFLUXDB_INIT_PASSWORD=test-password --env=DOCKER_INFLUXDB_INIT_MODE=setup --env=DOCKER_INFLUXDB_INIT_BUCKET=test-bucket --env=DOCKER_INFLUXDB_INIT_ORG=test-org --env=DOCKER_INFLUXDB_INIT_CLI_CONFIG_NAME=default --volume c:/temp/influxdb2-data:/var/lib/influxdb2 -p 8086 --name InfluxDB -d influxdb:2.7.5 
+    sdk env
+    mvn package
 
-Note: if you do not want to persist your data outside the container, omit the `--volume` flag. 
+Build native executable
 
-## Running Telegraf
+    mvn native:compile -Pnative
+
+## Start a session
+
+A docker compose file is provided in the docker folder to startup InfluxDB and Grafana.
+
+After influxdb is started enter a shell and execute the command below to generate a Telegraf token and create the Grafana datasource with a InfluxDB token.
+
+    ./tmp/initialize.sh
+
+Insert the Telegraf token in the `INFLUX_TOKEN` variable in `telegraf-start.ps1` file and execute the file. See section below for Telegraf installation if not installed.
+
+Execute the log generation using
+
+    ./target/influxdb-exploration
+
+Enter `help process` to get to know the `process` command.
+
+Logon to [Grafana](http://localhost:3000) (admin/admin-password) and open the `Performance dashboard` and watch the data flowing in.
+
+## Telegraf
 
 [Telegraf](https://www.influxdata.com/time-series-platform/telegraf/) is the agent that collect and send metrics to InfluxDB.
 
@@ -18,6 +40,8 @@ Install options:
     snap install telegraf --classic
 
 or [download and install](https://www.influxdata.com/time-series-platform/telegraf/#) locally.
+Note that the `telegraf-start.ps1` assumes Telegraf is added to `path` variable.
+
 
 ### Configuring Telegraf
 
@@ -42,6 +66,8 @@ A common scenario and best practise is to have multiple Telegraf instances outpu
 read from that message queue and output the content to InfluxDB. In this way the architecture is more resilient to outages and 
 buffer overflow if data cannot be written to InfluxDB.
 
+## InfluxDB
+
 ## Applying templates
 
 Templates contain everything from dashboards and Telegraf configurations to notifications and alerts in a single manifest file.
@@ -57,9 +83,17 @@ the Telegraf start command and paste it to a `telegraf.sh` file.
 See the [template readme](https://github.com/influxdata/community-templates/blob/master/linux_system/readme.md) for additional setup instructions, typically
 the `INFLUX_HOST` and `INFLUX_ORG` environment variables needs to be specified as in this case. Add these two lines to `telegraf.sh` so the complete file will be similar to this:
 
-    export INLFUX_ORG=TEST_ORG
+    export INLFUX_ORG=test_org
     export INFLUX_HOST=http://localhost:8086
     export INFLUX_TOKEN=YUxTSd72wHJEGTDQ_tRyaVn1XDFqXY96uMRrRQdN6YVgqRZlDs8VX77KvjF8MXT3dlx6sVMf6ZfBORXJmAwe1Q==  
     telegraf --config http://localhost:8086/api/v2/telegrafs/0c812ba1299bc000
 
 Execute the file and watch the `Linux System` dashboard light up.
+
+## Running InfluxDB using Docker
+
+Do a local install or use [Docker](https://docs.influxdata.com/influxdb/v2/install/?t=Docker) using the following command to set up a default user and organization:
+
+    docker run --env=DOCKER_INFLUXDB_INIT_USERNAME=test-user --env=DOCKER_INFLUXDB_INIT_PASSWORD=test-password --env=DOCKER_INFLUXDB_INIT_MODE=setup --env=DOCKER_INFLUXDB_INIT_BUCKET=test-bucket --env=DOCKER_INFLUXDB_INIT_ORG=test-org --env=DOCKER_INFLUXDB_INIT_CLI_CONFIG_NAME=default --volume c:/temp/influxdb2-data:/var/lib/influxdb2 -p 8086 --name InfluxDB -d influxdb:2.7.5 
+
+Note: if you do not want to persist your data outside the container, omit the `--volume` flag. 

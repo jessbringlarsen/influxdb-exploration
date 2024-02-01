@@ -10,6 +10,8 @@ services:
       - "8086:8086"
     networks:
       - monitoring
+    depends_on:
+      - grafana
     environment:
       - DOCKER_INFLUXDB_INIT_MODE=setup
       - DOCKER_INFLUXDB_INIT_ORG=test-org
@@ -17,6 +19,8 @@ services:
       - DOCKER_INFLUXDB_INIT_PASSWORD=admin-password
       - DOCKER_INFLUXDB_INIT_BUCKET=performance-bucket
       - DOCKER_INFLUXDB_INIT_CLI_CONFIG_NAME=default
+    volumes:
+      - ./initialize.sh:/tmp/initialize.sh
 
   grafana:
     image: grafana/grafana:latest
@@ -27,6 +31,5 @@ services:
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin-password
     volumes:
-      - ./grafana/datasources:/etc/grafana/provisioning/datasources/
       - ./grafana/dashboards/influxdb-dashboard.json:/var/lib/grafana/dashboards/influxdb-dashboard.json
       - ./grafana/dashboards/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml

@@ -10,6 +10,7 @@ import org.springframework.shell.standard.ShellOption;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @ShellComponent
 public class ExecuteProcess {
@@ -17,6 +18,8 @@ public class ExecuteProcess {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     private final ApplicationContext context;
     private final List<Thread> threads = new ArrayList<>();
+    private static AtomicInteger totalHostCount = new AtomicInteger(0);
+    private static AtomicInteger totalThreadCount = new AtomicInteger(0);
 
     @Autowired
     public ExecuteProcess(ApplicationContext context) {
@@ -28,9 +31,9 @@ public class ExecuteProcess {
                           @ShellOption(help = "Host count", defaultValue = "1") int hostCount,
                           @ShellOption(help = "Thread count", defaultValue = "1") int threadCount) {
         for (int hostCounter = 1; hostCounter <= hostCount; hostCounter++) {
+            final int hostId = totalHostCount.addAndGet(1);
             for (int threadCounter = 1; threadCounter <= threadCount; threadCounter++) {
-                final int hostId = hostCounter;
-                final int threadId = threadCounter;
+                final int threadId = totalThreadCount.addAndGet(1);
                 threads.add(Thread.startVirtualThread(() -> {
                     SomeProcess process = context.getBean(SomeProcess.class);
                     process.execute(new WorkConfiguration(hostId, threadId, itemCount));

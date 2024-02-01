@@ -16,7 +16,7 @@
     <root level="warn">
         <appender-ref ref="CONSOLE" />
     </root>
-    <logger name="dk.bringlarsen.influxdbexploration.SomeProcess" level="info" additivity="false">
+    <logger name="dk.bringlarsen.influxdbexploration.process.SomeProcess" level="info" additivity="false">
         <appender-ref ref="FILE" />
     </logger>
 </configuration>

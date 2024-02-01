@@ -1,4 +1,4 @@
-package dk.bringlarsen.influxdbexploration;
+package dk.bringlarsen.influxdbexploration.process;
 
 import java.util.Random;
 

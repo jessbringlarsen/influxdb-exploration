@@ -90,6 +90,21 @@ class FluxExplorationTest {
     }
 
     @Test
+    @DisplayName("expect a total of processed items are calculated")
+    void testSumUngroup() {
+        SumFlux query = Flux.from(influxDBContainer.getBucket())
+                .range(-5L, ChronoUnit.MINUTES)
+                .groupBy("")
+                .sum();
+
+        List<PerformanceMeasurement> result = queryApi.executeQuery(query);
+
+        assertThat(result)
+                .hasSize(1)
+                .anyMatch(matchHost(performanceMeasurement().withProcessedItems(12)));
+    }
+
+    @Test
     @DisplayName("expect 0.99 percentile group by host")
     void testQuantileGrouped() {
         QuantileFlux query = Flux.from(influxDBContainer.getBucket())

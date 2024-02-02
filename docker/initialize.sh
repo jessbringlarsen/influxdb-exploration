@@ -7,7 +7,6 @@ while true; do
   RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "http://grafana:3000/api/orgs/1" -H "Authorization: Basic YWRtaW46YWRtaW4tcGFzc3dvcmQ=" || true)
 
   if [ "$RESPONSE" -eq 200 ]; then
-    echo "Grafana is up!"
     break
   else
     echo "Waiting for Grafana..."
@@ -15,7 +14,8 @@ while true; do
   fi
 done
 
-# Create Influxdb token and Grafana dashboard
+# Create Influxdb token and Grafana datasource
+# Notice that the uid of the datasource is hardcoded such that the Grafana dashboard use this datasource
 export INFLUXDB_TOKEN=$(influx auth create --read-buckets -d grafana | grep grafana | awk {'print $3'})
 curl -X POST -s -o response.txt --location "http://grafana:3000/api/datasources" -H "Content-Type: application/json" -H "Authorization: Basic YWRtaW46YWRtaW4tcGFzc3dvcmQ=" \
     -d "{
@@ -44,6 +44,8 @@ curl -X POST -s -o response.txt --location "http://grafana:3000/api/datasources"
           \"version\": 1,
           \"readOnly\": false
         }"
+
+echo "Grafana datasource created!"
 
 # Create Telegraf API token
 influx auth create --write-buckets -d telegraf

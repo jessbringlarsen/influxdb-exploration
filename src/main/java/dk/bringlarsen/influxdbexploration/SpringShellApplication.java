@@ -2,14 +2,13 @@ package dk.bringlarsen.influxdbexploration;
 
 import dk.bringlarsen.influxdbexploration.process.ProcessManager;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
-import org.springframework.shell.table.ArrayTableModel;
-import org.springframework.shell.table.BorderStyle;
-import org.springframework.shell.table.Table;
-import org.springframework.shell.table.TableBuilder;
+
+import static org.springframework.boot.ansi.AnsiColor.GREEN;
 
 @ShellComponent
 @SpringBootApplication
@@ -22,24 +21,23 @@ public class SpringShellApplication {
                         @ShellOption(help = "Host count", defaultValue = "1") int hostCount,
                         @ShellOption(help = "Thread count", defaultValue = "1") int threadCount) {
         manager.process(itemCount, hostCount, threadCount);
-        System.out.printf("%s host(s) with %s thread(s) are working on %s items each %n", hostCount, threadCount, itemCount);
+        print("%s host(s) with %s thread(s) are working on %s items each", hostCount, threadCount, itemCount);
     }
 
     @ShellMethod(key = {"stop"}, value = "Stop processing")
     public void stopAll() {
         int threadStopped = manager.stopAll();
-        System.out.printf("Stopping %s thread(s) %n", threadStopped);
+        print("Stopping %s thread(s)", threadStopped);
     }
 
     @ShellMethod(key = {"status"}, value = "How many threads are executing.")
-    public Table status() {
-        Object[][] data = {
-                {"Total threads processing", "Total items processed"},
-                {manager.getCurrentlyExecutingThreads(), manager.getTotalItemsProcessed()}
-        };
-        TableBuilder tableBuilder = new TableBuilder(new ArrayTableModel(data));
-        tableBuilder.addHeaderAndVerticalsBorders(BorderStyle.fancy_light);
-        return tableBuilder.build();
+    public void status() {
+        print("Total threads processing: %s", manager.getCurrentlyExecutingThreads());
+        print("Total items processed: %s", manager.getTotalItemsProcessed());
+    }
+
+    private void print(String message, Object... args) {
+        System.out.printf(AnsiOutput.toString(GREEN, message + "%n"), args);
     }
 
     public static void main(String[] args) {

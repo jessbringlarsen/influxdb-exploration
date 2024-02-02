@@ -58,7 +58,7 @@ class FluxExplorationTest {
 
     @Test
     @DisplayName("expect results averaged and grouped by thread")
-    void testCase1() {
+    void testAveragedGrouped() {
         MeanFlux query = Flux.from(influxDBContainer.getBucket())
                 .range(-5L, ChronoUnit.MINUTES)
                 .groupBy("thread")
@@ -75,7 +75,7 @@ class FluxExplorationTest {
 
     @Test
     @DisplayName("expect results where processed items are summed up grouped by host")
-    void testCase2() {
+    void testSum() {
         SumFlux query = Flux.from(influxDBContainer.getBucket())
                 .range(-5L, ChronoUnit.MINUTES)
                 .groupBy("host")
@@ -91,7 +91,7 @@ class FluxExplorationTest {
 
     @Test
     @DisplayName("expect 0.99 percentile group by host")
-    void testCase3() {
+    void testQuantileGrouped() {
         QuantileFlux query = Flux.from(influxDBContainer.getBucket())
                 .range(-5L, ChronoUnit.MINUTES)
                 .groupBy("host")
@@ -106,8 +106,23 @@ class FluxExplorationTest {
     }
 
     @Test
+    @DisplayName("expect 0.99 percentile group by host")
+    void testQuantileUngrouped() {
+        QuantileFlux query = Flux.from(influxDBContainer.getBucket())
+                .range(-5L, ChronoUnit.MINUTES)
+                .groupBy("")
+                .quantile(Float.valueOf("0.99"));
+
+        List<PerformanceMeasurement> result = queryApi.executeQuery(query);
+
+        assertThat(result)
+                .hasSize(2)
+                .anyMatch(matchHost(performanceMeasurement().withHost("host-1").withProcessedItems(6)));
+    }
+
+    @Test
     @DisplayName("calculate the mean (average) items processed by each host in a six minute window")
-    void testCase4() {
+    void testMeanWindowed() {
         YieldFlux query = Flux.from(influxDBContainer.getBucket())
                 .range(-5L, ChronoUnit.MINUTES)
                 .groupBy("host")

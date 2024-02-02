@@ -81,7 +81,7 @@
           "refId": "A"
         }
       ],
-      "title": "Items processed",
+      "title": "Total items processed",
       "type": "stat"
     },
     {
@@ -172,7 +172,7 @@
           "refId": "A"
         }
       ],
-      "title": "Host",
+      "title": "Items processed by hosts",
       "type": "timeseries"
     },
     {
@@ -263,7 +263,7 @@
           "refId": "A"
         }
       ],
-      "title": "Threads",
+      "title": "Items processed by threads",
       "type": "timeseries"
     },
     {

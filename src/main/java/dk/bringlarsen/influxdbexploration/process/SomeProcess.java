@@ -5,19 +5,25 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class SomeProcess {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+    private final AtomicLong totalItemsProcessedCounter;
+
+    public SomeProcess(AtomicLong totalItemsProcessedCounter) {
+        this.totalItemsProcessedCounter = totalItemsProcessedCounter;
+    }
 
     public void execute(WorkConfiguration configuration) {
         boolean stopProcessing = false;
         try {
             MDC.put("thread", String.valueOf(configuration.threadId()));
             MDC.put("host", String.valueOf(configuration.hostId()));
-            int itemsProcessed = configuration.getPerformanceConfig();
+            int performanceConfig = configuration.getPerformanceConfig();
             for (int work = 1; work <= configuration.itemCountToProcess() && !stopProcessing; work++) {
-                stopProcessing = doProcess(itemsProcessed);
+                stopProcessing = doProcess(performanceConfig);
             }
         } finally {
             MDC.remove("thread");
@@ -25,10 +31,12 @@ public class SomeProcess {
         }
     }
 
-    private boolean doProcess(int itemsProcessed) {
+    private boolean doProcess(int performanceConfig) {
         try {
             Thread.sleep(1000);
-            log.info("processed={}", new Random().nextInt(itemsProcessed, itemsProcessed + 5000));
+            int itemsProcessed = new Random().nextInt(performanceConfig, performanceConfig + 5000);
+            totalItemsProcessedCounter.addAndGet(itemsProcessed);
+            log.info("processed={}", itemsProcessed);
         } catch (InterruptedException e) {
             return true;
         }

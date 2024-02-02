@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Testcontainers
 class FluxExplorationTest {
 
-    @Container
+    @Container // This is a shared container, you are expected to clean-up after each test.
     static final InfluxDBContainer<?> influxDBContainer = new InfluxDBContainer<>(DockerImageName.parse("influxdb:2.7.5"));
     InfluxDbWriteApi writeApi;
     InfluxDbQueryApi queryApi;
@@ -106,7 +106,7 @@ class FluxExplorationTest {
     }
 
     @Test
-    @DisplayName("expect 0.99 percentile group by host")
+    @DisplayName("expect 0.99 percentile")
     void testQuantileUngrouped() {
         QuantileFlux query = Flux.from(influxDBContainer.getBucket())
                 .range(-5L, ChronoUnit.MINUTES)
@@ -116,7 +116,7 @@ class FluxExplorationTest {
         List<PerformanceMeasurement> result = queryApi.executeQuery(query);
 
         assertThat(result)
-                .hasSize(2)
+                .hasSize(1)
                 .anyMatch(matchHost(performanceMeasurement().withHost("host-1").withProcessedItems(6)));
     }
 

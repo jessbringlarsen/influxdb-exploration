@@ -21,12 +21,14 @@ public class SomeProcess {
         try {
             MDC.put("thread", String.valueOf(configuration.threadId()));
             MDC.put("host", String.valueOf(configuration.hostId()));
+            MDC.put("region", String.valueOf(configuration.region()));
             int performanceConfig = configuration.getPerformanceConfig();
             for (int work = 1; work <= configuration.itemCountToProcess() && !stopProcessing; work++) {
                 stopProcessing = doProcess(performanceConfig);
             }
         } finally {
             MDC.remove("thread");
+            MDC.remove("region");
             MDC.remove("host");
         }
     }

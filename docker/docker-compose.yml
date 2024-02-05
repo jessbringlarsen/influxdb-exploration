@@ -19,6 +19,7 @@ services:
       - DOCKER_INFLUXDB_INIT_PASSWORD=admin-password
       - DOCKER_INFLUXDB_INIT_BUCKET=performance-bucket
       - DOCKER_INFLUXDB_INIT_CLI_CONFIG_NAME=default
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=RQWlUg-S5QtgcPieJHU_WgWTDtDbqobm5nHF9txTxcpI9stRpg4yZCFp3hZmmna9Lnau-_Fn8haHO779iuujiw==
     volumes:
       - ./initialize.sh:/tmp/initialize.sh
 
@@ -33,3 +34,4 @@ services:
     volumes:
       - ./grafana/dashboards/influxdb-dashboard.json:/var/lib/grafana/dashboards/influxdb-dashboard.json
       - ./grafana/dashboards/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ./grafana/influx-datasource.yml:/etc/grafana/provisioning/datasources/influx-datasource.yml

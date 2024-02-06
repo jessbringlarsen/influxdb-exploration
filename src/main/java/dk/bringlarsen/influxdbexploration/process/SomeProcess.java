@@ -20,8 +20,8 @@ public class SomeProcess {
         boolean stopProcessing = false;
         try {
             MDC.put("thread", String.valueOf(configuration.threadId()));
-            MDC.put("host", String.valueOf(configuration.hostId()));
-            MDC.put("region", String.valueOf(configuration.region()));
+            MDC.put("host", String.valueOf(configuration.host().id()));
+            MDC.put("region", String.valueOf(configuration.host().region()));
             int performanceConfig = configuration.getPerformanceConfig();
             for (int work = 1; work <= configuration.itemCountToProcess() && !stopProcessing; work++) {
                 stopProcessing = doProcess(performanceConfig);

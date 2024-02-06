@@ -12,6 +12,17 @@ public class ProcessManager {
     private final AtomicInteger totalThreadCount = new AtomicInteger(0);
     private final AtomicLong totalItemsProcessedCounter = new AtomicLong(0);
 
+    public void processAndBlock(int itemCount, int hostCount, int threadCount) {
+        process(itemCount, hostCount, threadCount);
+        threads.forEach(thread -> {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                System.err.println("Processing was interrupted!");
+            }
+        });
+    }
+
     public void process(int itemCount, int hostCount, int threadCount) {
         for (int hostCounter = 1; hostCounter <= hostCount; hostCounter++) {
             final int hostId = totalHostCount.addAndGet(1);

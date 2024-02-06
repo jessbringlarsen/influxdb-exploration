@@ -41,9 +41,17 @@ class ProcessManagerTest {
     @Test
     @DisplayName("given a stop command, expect no executing threads")
     void stopThreadsCase() {
-        manager.process(10, 2, 10);
+        manager.process(10, 2, 2);
 
         manager.stopAll();
+
+        assertEquals(0, manager.getCurrentlyExecutingThreads());
+    }
+
+    @Test
+    @DisplayName("given blocking call, expect method to block until finished")
+    void blockingCall() {
+        manager.processAndBlock(10, 2, 2);
 
         assertEquals(0, manager.getCurrentlyExecutingThreads());
     }

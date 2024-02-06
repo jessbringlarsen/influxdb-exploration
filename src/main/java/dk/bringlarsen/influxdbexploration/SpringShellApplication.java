@@ -9,6 +9,7 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 
 import static org.springframework.boot.ansi.AnsiColor.GREEN;
+import static org.springframework.shell.context.InteractionMode.*;
 
 @ShellComponent
 @SpringBootApplication
@@ -16,21 +17,26 @@ public class SpringShellApplication {
 
     private final ProcessManager manager = new ProcessManager();
 
-    @ShellMethod(key = {"process"}, value = "Execute expensive process")
+    @ShellMethod(key = {"process"}, interactionMode = ALL, value = "Execute expensive process")
     public void process(@ShellOption(help = "How many items to process", defaultValue = "10") int itemCount,
                         @ShellOption(help = "Host count", defaultValue = "1") int hostCount,
-                        @ShellOption(help = "Thread count", defaultValue = "1") int threadCount) {
-        manager.process(itemCount, hostCount, threadCount);
+                        @ShellOption(help = "Thread count", defaultValue = "1") int threadCount,
+                        @ShellOption(help = "Block while processing", defaultValue = "false") boolean block) {
         print("%s host(s) with %s thread(s) are working on %s items each", hostCount, threadCount, itemCount);
+        if (block) {
+            manager.processAndBlock(itemCount, hostCount, threadCount);
+        } else {
+            manager.process(itemCount, hostCount, threadCount);
+        }
     }
 
-    @ShellMethod(key = {"stop"}, value = "Stop processing")
+    @ShellMethod(key = {"stop"}, interactionMode = INTERACTIVE, value = "Stop processing")
     public void stopAll() {
         int threadStopped = manager.stopAll();
         print("Stopping %s thread(s)", threadStopped);
     }
 
-    @ShellMethod(key = {"status"}, value = "How many threads are executing.")
+    @ShellMethod(key = {"status"}, interactionMode = INTERACTIVE, value = "How many threads are executing.")
     public void status() {
         print("Total threads processing: %s", manager.getCurrentlyExecutingThreads());
         print("Total items processed: %s", manager.getTotalItemsProcessed());

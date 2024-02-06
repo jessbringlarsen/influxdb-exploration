@@ -86,6 +86,11 @@
             <plugin>
                 <groupId>org.graalvm.buildtools</groupId>
                 <artifactId>native-maven-plugin</artifactId>
+                <configuration>
+                    <metadataRepository>
+                        <enabled>true</enabled>
+                    </metadataRepository>
+                </configuration>
             </plugin>
         </plugins>
     </build>

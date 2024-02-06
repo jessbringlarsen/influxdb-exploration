@@ -6,25 +6,18 @@ functionality to generate random load data. Lastly tests exists that explore the
 ## Build
 
     sdk env
-    mvn package
+    mvn package -Pnative
 
-Build native executable
+Note: the docker build process are generating a native image hence we need the `native` profile
 
-    mvn native:compile -Pnative
+## Boot local environment
 
-## Start a session
+    docker compose up
 
-A docker compose file is provided in the docker folder to startup InfluxDB and Grafana.
+Enter a shell on the container `influxdb-exploration-app-1` and do 
 
-After influxdb is started enter a shell and execute the command below to generate a Telegraf token and create the Grafana datasource with a InfluxDB token.
-
-    ./tmp/initialize.sh
-
-Insert the Telegraf token in the `INFLUX_TOKEN` variable in `telegraf-start.ps1` file and execute the file. See section below for Telegraf installation if not installed.
-
-Execute the log generation using
-
-    ./target/influxdb-exploration
+    cd app
+    ./app
 
 Enter `help process` to get to know the `process` command.
 
@@ -49,7 +42,7 @@ Basically you configure a number of input, aggregator, processor and output [plu
 There are many plugins for example input plugins that can read output from a script `ExecD` or `http` that can periodically  pull a http address.
 
 In this project there is an example of using the [Grok](https://docs.influxdata.com/telegraf/v1/data_formats/input/grok/) input plugin
-for sending the content of a log file to InfluxDB. See the file [telegraf.conf](telegraf.conf).
+for sending the content of a log file to InfluxDB. See the file `telegraf.conf`.
 
 One very important bit is to configure the timestamp correctly as shown. Note that throughout this project the InfluxDB uses UTC time zone 
 as that is the default configured for the docker image.

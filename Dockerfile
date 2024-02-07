@@ -8,7 +8,7 @@ RUN native-image -H:+UnlockExperimentalVMOptions dk.bringlarsen.influxdbexplorat
 FROM alpine:latest
 RUN apk add telegraf gcompat
 
-COPY  --from=builder /tmp/app /app/
+COPY --from=builder /tmp/app /app/
 COPY docker/telegraf/telegraf.conf /app/
 
 CMD ["sleep", "infinity"]

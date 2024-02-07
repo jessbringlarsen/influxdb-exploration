@@ -6,14 +6,14 @@ datasources:
     access: proxy
     orgId: 1
     uid: "b8cb4326-8b98-49d6-8a9c-839e5c32a6a3"
-    url: http://influxdb:8086
+    url: ${INFLUX_HOST}
     basicAuth: false
     isDefault: true
     jsonData:
       version: Flux
       httpMode: "POST"
-      defaultBucket: "performance-bucket"
-      organization: "test-org"
+      defaultBucket: ${INFLUX_BUCKET}
+      organization: ${INFLUX_ORG}
     secureJsonData:
-      token: RQWlUg-S5QtgcPieJHU_WgWTDtDbqobm5nHF9txTxcpI9stRpg4yZCFp3hZmmna9Lnau-_Fn8haHO779iuujiw==
+      token: ${INFLUX_TOKEN}
     editable: true

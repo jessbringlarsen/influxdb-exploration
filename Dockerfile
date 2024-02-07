@@ -9,7 +9,6 @@ FROM alpine:latest
 RUN apk add telegraf gcompat
 
 COPY  --from=builder /tmp/app /app/
-COPY environments/local/telegraf/telegraf.conf /app/
-COPY environments/local/telegraf/telegraf-start.sh /app/
+COPY docker/telegraf/telegraf.conf /app/
 
-CMD sh -c /app/telegraf-start.sh
+CMD ["sleep", "infinity"]

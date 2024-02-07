@@ -12,7 +12,7 @@ Note: the docker build process are generating a native image hence we need the `
 
 ## Boot local environment
 
-    docker compose up
+    docker compose --env-file=docker/.env.local up
 
 Enter a shell on the container `influxdb-exploration-app-1` and do 
 
@@ -73,8 +73,8 @@ In the InfluxDB UI go to `Settings` -> `Templates` and paste the url: `https://g
 Go to `Load Data` -> `Telegraf` -> `Linux System Monitoring` -> `Setup Instructions` -> `Generate New API Token` and copy the API Token and 
 the Telegraf start command and paste it to a `telegraf.sh` file.
 
-See the [template readme](https://github.com/influxdata/community-templates/blob/master/linux_system/readme.md) for additional setup instructions, typically
-the `INFLUX_HOST` and `INFLUX_ORG` environment variables needs to be specified as in this case. Add these two lines to `telegraf.sh` so the complete file will be similar to this:
+See the [template readme](https://github.com/influxdata/community-templates/blob/master/linux_system/readme.md) for additional setup instructions, typically the `INFLUX_HOST` and `INFLUX_ORG` environment variables needs to be specified as in this case. 
+Execute commands similar to this:
 
     export INLFUX_ORG=test_org
     export INFLUX_HOST=http://localhost:8086

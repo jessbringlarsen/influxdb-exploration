@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3.8"
 
 networks:
   monitoring:
@@ -12,6 +12,13 @@ services:
     depends_on:
       - influxdb
       - grafana
+    environment:
+      - INFLUX_TOKEN=${INFLUX_TOKEN}
+      - INFLUX_HOST=${INFLUX_HOST}
+      - INFLUX_ORG=${INFLUX_ORG}
+      - INFLUX_BUCKET=${INFLUX_BUCKET}
+      - LOG_FILE=${LOG_FILE}
+    command: [ "telegraf", "--config",  "/app/telegraf.conf" ]
 
   influxdb:
     image: influxdb:latest
@@ -21,12 +28,12 @@ services:
       - monitoring
     environment:
       - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_ORG=test-org
-      - DOCKER_INFLUXDB_INIT_USERNAME=admin
-      - DOCKER_INFLUXDB_INIT_PASSWORD=admin-password
-      - DOCKER_INFLUXDB_INIT_BUCKET=performance-bucket
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUX_ORG}
+      - DOCKER_INFLUXDB_INIT_USERNAME=${ADMIN_USER}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${ADMIN_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUX_BUCKET}
       - DOCKER_INFLUXDB_INIT_CLI_CONFIG_NAME=default
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=RQWlUg-S5QtgcPieJHU_WgWTDtDbqobm5nHF9txTxcpI9stRpg4yZCFp3hZmmna9Lnau-_Fn8haHO779iuujiw==
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUX_TOKEN}
 
   grafana:
     image: grafana/grafana:latest
@@ -35,9 +42,13 @@ services:
     networks:
       - monitoring
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin-password
+      - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - INFLUX_TOKEN=${INFLUX_TOKEN}
+      - INFLUX_HOST=${INFLUX_HOST}
+      - INFLUX_ORG=${INFLUX_ORG}
+      - INFLUX_BUCKET=${INFLUX_BUCKET}
     volumes:
-      - ./environments/common/grafana/dashboards/influxdb-dashboard.json:/var/lib/grafana/dashboards/influxdb-dashboard.json
-      - ./environments/common/grafana/dashboards/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
-      - ./environments/common/grafana/influx-datasource.yml:/etc/grafana/provisioning/datasources/influx-datasource.yml
+      - ./docker/grafana/dashboards/influxdb-dashboard.json:/var/lib/grafana/dashboards/influxdb-dashboard.json
+      - ./docker/grafana/dashboards/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ./docker/grafana/influx-datasource.yml:/etc/grafana/provisioning/datasources/influx-datasource.yml
 

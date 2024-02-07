@@ -5,43 +5,49 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class SomeProcess {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    private final AtomicLong totalItemsProcessedCounter;
 
-    public SomeProcess(AtomicLong totalItemsProcessedCounter) {
-        this.totalItemsProcessedCounter = totalItemsProcessedCounter;
-    }
-
-    public void execute(WorkConfiguration configuration) {
-        boolean stopProcessing = false;
+    public int execute(WorkConfiguration configuration) {
         try {
-            MDC.put("thread", String.valueOf(configuration.threadId()));
-            MDC.put("host", String.valueOf(configuration.host().id()));
-            MDC.put("region", String.valueOf(configuration.host().region()));
+            setupLogging(configuration);
             int performanceConfig = configuration.getPerformanceConfig();
-            for (int work = 1; work <= configuration.itemCountToProcess() && !stopProcessing; work++) {
-                stopProcessing = doProcess(performanceConfig);
-            }
+            return doProcess(configuration, performanceConfig);
         } finally {
-            MDC.remove("thread");
-            MDC.remove("region");
-            MDC.remove("host");
+            cleanUp();
         }
     }
 
-    private boolean doProcess(int performanceConfig) {
+    private static void setupLogging(WorkConfiguration configuration) {
+        MDC.put("thread", String.valueOf(configuration.threadId()));
+        MDC.put("host", String.valueOf(configuration.host().id()));
+        MDC.put("region", String.valueOf(configuration.host().region()));
+    }
+
+    private int doProcess(WorkConfiguration configuration, int performanceConfig) {
+        int itemsProcessed = 0;
         try {
-            Thread.sleep(1000);
-            int itemsProcessed = new Random().nextInt(performanceConfig, performanceConfig + 5000);
-            totalItemsProcessedCounter.addAndGet(itemsProcessed);
-            log.info("processed={}", itemsProcessed);
+            for (int work = 1; work <= configuration.itemCountToProcess(); work++) {
+                itemsProcessed += doProcess(performanceConfig);
+            }
         } catch (InterruptedException e) {
-            return true;
+            log.warn("Thread interrupted. Processing stopped!");
         }
-        return false;
+        return itemsProcessed;
+    }
+
+    private static void cleanUp() {
+        MDC.remove("thread");
+        MDC.remove("region");
+        MDC.remove("host");
+    }
+
+    private int doProcess(int performanceConfig) throws InterruptedException {
+        Thread.sleep(1000);
+        int itemsProcessed = new Random().nextInt(performanceConfig, performanceConfig + 5000);
+        log.info("processed={}", itemsProcessed);
+        return itemsProcessed;
     }
 }

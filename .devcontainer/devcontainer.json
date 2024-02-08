@@ -1,16 +1,11 @@
 {
-  "name": "Java",
-  "image": "mcr.microsoft.com/devcontainers/java:1-21-bullseye",
-
+  "name": "Ubuntu",
+  "image": "mcr.microsoft.com/devcontainers/base:jammy",
   "features": {
-    "ghcr.io/devcontainers/features/java:1": {
-      "version": "none",
-      "installMaven": "true",
-      "installGradle": "false"
-    },
-    "ghcr.io/ebaskoro/devcontainer-features/sdkman:1": {
-      "candidate": "maven",
-      "version": "latest"
+    "ghcr.io/devcontainers-contrib/features/maven-sdkman:2": {
+      "version": "latest",
+      "jdkVersion": "21",
+      "jdkDistro": "tem"
     }
   }
 }

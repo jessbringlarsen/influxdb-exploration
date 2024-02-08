@@ -1,0 +1,26 @@
+POST http://localhost:3000/api/datasources
+Content-Type: application/json
+Authorization: Basic YWRtaW46YWRtaW4tcGFzc3dvcmQ=
+
+{
+    "orgId": 1,
+    "name": "InfluxDB-2",
+    "type": "influxdb",
+    "typeLogoUrl": "/public/app/plugins/datasource/influxdb/img/influxdb_logo.svg",
+    "access": "proxy",
+    "url": "http://influxdb:8086",
+    "basicAuth": false,
+    "withCredentials": false,
+    "isDefault": true,
+    "jsonData": {
+        "defaultBucket": "performance-bucket",
+        "httpMode": "POST",
+        "organization": "test-org",
+        "version": "Flux"
+    },
+    "secureJsonData": {
+        "token": "generated token"
+    },
+    "version": 1,
+    "readOnly": false
+}

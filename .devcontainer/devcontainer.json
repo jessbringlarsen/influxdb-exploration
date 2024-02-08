@@ -1,5 +1,5 @@
 {
-  "name": "Ubuntu",
+  "name": "Influxdb-exploration",
   "image": "mcr.microsoft.com/devcontainers/base:jammy",
   "features": {
     "ghcr.io/devcontainers-contrib/features/maven-sdkman:2": {

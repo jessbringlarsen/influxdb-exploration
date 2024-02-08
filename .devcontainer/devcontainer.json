@@ -11,9 +11,6 @@
     "ghcr.io/ebaskoro/devcontainer-features/sdkman:1": {
       "candidate": "maven",
       "version": "latest"
-    },
-    "ghcr.io/audacioustux/devcontainers/graalvm:1": {
-      "java": "21"
     }
   }
 }

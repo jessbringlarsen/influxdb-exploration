@@ -12,7 +12,7 @@ Note: the docker build process are generating a native image hence we need the `
 
 ## Boot local environment
 
-    docker compose --env-file=docker/.env.local up
+    docker compose -f docker-compose.yml -f docker-compose.local.yml --env-file=docker/.env.local up
 
 Enter a shell on the container `influxdb-exploration-app-1` and do 
 

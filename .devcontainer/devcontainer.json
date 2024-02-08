@@ -5,13 +5,8 @@
   "features": {
     "ghcr.io/devcontainers/features/java:1": {
       "version": "none",
-      "installMaven": "false",
+      "installMaven": "true",
       "installGradle": "false"
-    },
-    "ghcr.io/devcontainers-contrib/features/maven-sdkman:2": {
-      "version": "latest",
-      "jdkVersion": "latest",
-      "jdkDistro": "ms"
     },
     "ghcr.io/ebaskoro/devcontainer-features/sdkman:1": {
       "candidate": "maven",

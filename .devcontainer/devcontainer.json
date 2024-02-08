@@ -1,5 +1,26 @@
 {
-   // A minimal configuration allowing the container to be created and started
-  "name": "influxdb-exploration",
-  "image": "ubuntu" // Change to your own image name
+  "name": "Java Development",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "VARIANT": "21",
+      "INSTALL_NODE": "false"
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "21"
+    }
+  },
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash"
+  },
+  "extensions": [
+    "vscjava.vscode-java-pack"
+  ],
+  "forwardPorts": [
+    8080
+  ],
+  "postCreateCommand": "echo 'Ready!'",
+  "remoteUser": "vscode"
 }

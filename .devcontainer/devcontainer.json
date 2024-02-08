@@ -1,26 +1,24 @@
 {
-  "name": "Java Development",
-  "build": {
-    "dockerfile": "Dockerfile",
-    "args": {
-      "VARIANT": "21",
-      "INSTALL_NODE": "false"
-    }
-  },
+  "name": "Java",
+  "image": "mcr.microsoft.com/devcontainers/java:1-21-bullseye",
+
   "features": {
     "ghcr.io/devcontainers/features/java:1": {
-      "version": "21"
+      "version": "none",
+      "installMaven": "false",
+      "installGradle": "false"
+    },
+    "ghcr.io/devcontainers-contrib/features/maven-sdkman:2": {
+      "version": "latest",
+      "jdkVersion": "latest",
+      "jdkDistro": "ms"
+    },
+    "ghcr.io/ebaskoro/devcontainer-features/sdkman:1": {
+      "candidate": "maven",
+      "version": "latest"
+    },
+    "ghcr.io/audacioustux/devcontainers/graalvm:1": {
+      "java": "21"
     }
-  },
-  "settings": {
-    "terminal.integrated.shell.linux": "/bin/bash"
-  },
-  "extensions": [
-    "vscjava.vscode-java-pack"
-  ],
-  "forwardPorts": [
-    8080
-  ],
-  "postCreateCommand": "echo 'Ready!'",
-  "remoteUser": "vscode"
+  }
 }

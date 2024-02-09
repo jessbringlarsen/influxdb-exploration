@@ -10,9 +10,15 @@ functionality to generate random load data. Lastly tests exists that explore the
 
 Note: the docker build process are generating a native image hence we need the `native` profile
 
+To build the docker image issue the following command in the project root directory:
+
+`docker build -t test -f docker/Dockerfile .`
+
 ## Boot local environment
 
-    docker compose -f docker-compose.yml -f docker-compose.local.yml --env-file=docker/.env.local up
+Located in the root project directory issue the command:
+
+    docker compose -f docker/docker-compose.yml -f docker/docker-compose.local.yml --env-file=docker/.env.local up
 
 Enter a shell on the container `influxdb-exploration-app-1` and do 
 
@@ -87,6 +93,6 @@ Execute the file and watch the `Linux System` dashboard light up.
 
 Do a local install or use [Docker](https://docs.influxdata.com/influxdb/v2/install/?t=Docker) using the following command to set up a default user and organization:
 
-    docker run --env=DOCKER_INFLUXDB_INIT_USERNAME=test-user --env=DOCKER_INFLUXDB_INIT_PASSWORD=test-password --env=DOCKER_INFLUXDB_INIT_MODE=setup --env=DOCKER_INFLUXDB_INIT_BUCKET=test-bucket --env=DOCKER_INFLUXDB_INIT_ORG=test-org --env=DOCKER_INFLUXDB_INIT_CLI_CONFIG_NAME=default --volume c:/temp/influxdb2-data:/var/lib/influxdb2 -p 8086 --name InfluxDB -d influxdb:2.7.5 
+    docker run --env=DOCKER_INFLUXDB_INIT_USERNAME=test-user --env=DOCKER_INFLUXDB_INIT_PASSWORD=test-password --env=DOCKER_INFLUXDB_INIT_MODE=setup --env=DOCKER_INFLUXDB_INIT_BUCKET=test-bucket --env=DOCKER_INFLUXDB_INIT_ORG=test-org --env=DOCKER_INFLUXDB_INIT_CLI_CONFIG_NAME=default -p 8086 --name InfluxDB -d influxdb:2.7.5 
 
-Note: if you do not want to persist your data outside the container, omit the `--volume` flag. 
+Note: if you do want to persist your data outside the container, adjust the source path and add: `--volume /home/influxdb/data:/var/lib/influxdb2`

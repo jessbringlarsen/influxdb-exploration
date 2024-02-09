@@ -6,7 +6,8 @@ networks:
 services:
   app:
     build:
-      dockerfile: Dockerfile
+      context: ../
+      dockerfile: docker/Dockerfile
     networks:
       - monitoring
     depends_on:
@@ -48,7 +49,6 @@ services:
       - INFLUX_ORG=${INFLUX_ORG}
       - INFLUX_BUCKET=${INFLUX_BUCKET}
     volumes:
-      - ./docker/grafana/dashboards/influxdb-dashboard.json:/var/lib/grafana/dashboards/influxdb-dashboard.json
-      - ./docker/grafana/dashboards/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
-      - ./docker/grafana/influx-datasource.yml:/etc/grafana/provisioning/datasources/influx-datasource.yml
-
+      - ./grafana/dashboards/influxdb-dashboard.json:/var/lib/grafana/dashboards/influxdb-dashboard.json
+      - ./grafana/dashboards/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ./grafana/influx-datasource.yml:/etc/grafana/provisioning/datasources/influx-datasource.yml

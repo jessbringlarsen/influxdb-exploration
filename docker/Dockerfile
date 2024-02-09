@@ -1,7 +1,7 @@
 FROM ghcr.io/graalvm/graalvm-community:21 as builder
 
 WORKDIR /tmp
-COPY target/influxdb-exploration.jar /tmp/influxdb-exploration.jar
+COPY ../target/influxdb-exploration.jar /tmp/influxdb-exploration.jar
 RUN jar xvf influxdb-exploration.jar
 RUN native-image -H:+UnlockExperimentalVMOptions dk.bringlarsen.influxdbexploration.SpringShellApplication -o app -cp .:BOOT-INF/classes:`find BOOT-INF/lib | tr '\n' ':'`
 

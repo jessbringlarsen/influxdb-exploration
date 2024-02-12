@@ -10,8 +10,8 @@ public class ProcessManager {
     private final List<Host> executingHosts = new CopyOnWriteArrayList<>();
     private final AtomicLong totalItemsProcessedCounter = new AtomicLong(0);
 
-    public void processAndBlock(int itemCount, int hostCount, int threadCount) {
-        process(itemCount, hostCount, threadCount);
+    public void processAndBlock(int secondsToProcess, int hostCount, int threadCount) {
+        process(secondsToProcess, hostCount, threadCount);
         executingThreads.forEach(thread -> {
             try {
                 thread.join();
@@ -21,7 +21,7 @@ public class ProcessManager {
         });
     }
 
-    public void process(int itemCount, int hostCount, int threadCount) {
+    public void process(int secondsToProcess, int hostCount, int threadCount) {
         for (int hostCounter = 1; hostCounter <= hostCount; hostCounter++) {
             final Host host = new Host(executingHosts.size() + 1);
             executingHosts.add(host);
@@ -30,7 +30,7 @@ public class ProcessManager {
                 final int threadId = executingThreads.size() + 1;
                 executingThreads.add(Thread.startVirtualThread(() -> {
                     SomeProcess process = new SomeProcess();
-                    int itemsProcessed = process.execute(new WorkConfiguration(host, threadId, itemCount));
+                    int itemsProcessed = process.execute(new WorkConfiguration(host, threadId, secondsToProcess));
                     totalItemsProcessedCounter.addAndGet(itemsProcessed);
                     executingHosts.remove(host);
                 }));

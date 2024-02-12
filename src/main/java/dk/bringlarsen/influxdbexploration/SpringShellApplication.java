@@ -18,15 +18,15 @@ public class SpringShellApplication {
     private final ProcessManager manager = new ProcessManager();
 
     @ShellMethod(key = {"process"}, interactionMode = ALL, value = "Execute expensive process")
-    public void process(@ShellOption(help = "How many items to process", defaultValue = "10") int itemCount,
-                        @ShellOption(help = "Host count", defaultValue = "1") int hostCount,
-                        @ShellOption(help = "Thread count", defaultValue = "1") int threadCount,
+    public void process(@ShellOption(help = "Processing time in seconds", defaultValue = "60") int secondsToProcess,
+                        @ShellOption(help = "Host count", defaultValue = "2") int hostCount,
+                        @ShellOption(help = "Thread count", defaultValue = "4") int threadCount,
                         @ShellOption(help = "Block while processing", defaultValue = "false") boolean block) {
-        print("%s host(s) with %s thread(s) are working on %s items each", hostCount, threadCount, itemCount);
+        print("%s host(s) with %s thread(s) are processing in %s seconds", hostCount, threadCount, secondsToProcess);
         if (block) {
-            manager.processAndBlock(itemCount, hostCount, threadCount);
+            manager.processAndBlock(secondsToProcess, hostCount, threadCount);
         } else {
-            manager.process(itemCount, hostCount, threadCount);
+            manager.process(secondsToProcess, hostCount, threadCount);
         }
     }
 

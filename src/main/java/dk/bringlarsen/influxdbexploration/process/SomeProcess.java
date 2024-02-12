@@ -29,7 +29,7 @@ public class SomeProcess {
     private int doProcess(WorkConfiguration configuration, int performanceConfig) {
         int itemsProcessed = 0;
         try {
-            for (int work = 1; work <= configuration.itemCountToProcess(); work++) {
+            for (int second = 1; second <= configuration.secondsToProcess(); second++) {
                 itemsProcessed += doProcess(performanceConfig);
             }
         } catch (InterruptedException e) {

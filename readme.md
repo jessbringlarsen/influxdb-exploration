@@ -7,6 +7,7 @@ functionality to generate random load data. Lastly tests exists that explore the
 
     sdk env
     mvn package -Pnative
+    mvn native:compile
 
 Note: the docker build process are generating a native image hence we need the `native` profile
 

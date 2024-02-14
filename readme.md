@@ -19,7 +19,7 @@ To build the docker image issue the following command in the project root direct
 
 Located in the root project directory issue the command:
 
-    docker compose -f docker/docker-compose.yml -f docker/docker-compose.local.yml --env-file=docker/.env.local up
+    docker compose -f docker/docker-compose.yml -f docker/docker-compose.local.yml --env-file=docker/local.env up -d
 
 Enter a shell on the container `influxdb-exploration-app-1` and do 
 

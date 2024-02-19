@@ -1,10 +1,6 @@
 package dk.bringlarsen.influxdbexploration;
 
 import com.influxdb.query.dsl.Flux;
-import com.influxdb.query.dsl.functions.MeanFlux;
-import com.influxdb.query.dsl.functions.QuantileFlux;
-import com.influxdb.query.dsl.functions.SumFlux;
-import com.influxdb.query.dsl.functions.YieldFlux;
 import dk.bringlarsen.influxdbexploration.api.InfluxDbQueryApi;
 import dk.bringlarsen.influxdbexploration.api.InfluxDbWriteApi;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,19 +11,22 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.function.Predicate;
 
 import static dk.bringlarsen.influxdbexploration.PerformanceMeasurement.performanceMeasurement;
+import static java.time.ZoneId.of;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Explore Flux queries acting on this data:
  * <p>
- * Time (Minutes Ago)
- * |----|----|----|----|----|
- * 5    4    3    2    1    0 (Present)
+ * Start time
+ * |----|----|----|----|
+ * 0    1    2    3    4
  *      |    |    |    |
  *      |    |    |    +---> host=host-2, thread=2, processedItems=1
  *      |    |    |
@@ -40,116 +39,120 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Testcontainers
 class FluxExplorationTest {
 
-    @Container // This is a shared container, you are expected to clean-up after each test.
+    @Container
     static final InfluxDBContainer<?> influxDBContainer = new InfluxDBContainer<>(DockerImageName.parse("influxdb:2.7.5"));
-    InfluxDbWriteApi writeApi;
-    InfluxDbQueryApi queryApi;
+
+    private InfluxDbQueryApi queryApi;
+    private final Instant start = Instant.parse("2023-10-15T10:00:00.00Z");
+    private final Instant end = Instant.parse("2023-10-15T10:05:00.00Z");
+
 
     @BeforeEach
     void setup() {
         queryApi = new InfluxDbQueryApi(influxDBContainer);
-        writeApi = new InfluxDbWriteApi(influxDBContainer);
-        writeApi.cleanAndWrite(
-                performanceMeasurement().withHost("host-1").withThread("1").withProcessedItems(6).withTimeMinusMinutes(4),
-                performanceMeasurement().withHost("host-2").withThread("1").withProcessedItems(2).withTimeMinusMinutes(3),
-                performanceMeasurement().withHost("host-1").withThread("2").withProcessedItems(3).withTimeMinusMinutes(2),
-                performanceMeasurement().withHost("host-2").withThread("2").withProcessedItems(1).withTimeMinusMinutes(1));
+
+        Clock clock = Clock.fixed(start, of("UTC"));
+        new InfluxDbWriteApi(influxDBContainer).cleanAndWrite(
+            performanceMeasurement().withHost("host-1").withThread("1").withProcessedItems(6).withTimePlusMinutes(clock, 1),
+            performanceMeasurement().withHost("host-2").withThread("1").withProcessedItems(2).withTimePlusMinutes(clock, 2),
+            performanceMeasurement().withHost("host-1").withThread("2").withProcessedItems(3).withTimePlusMinutes(clock, 3),
+            performanceMeasurement().withHost("host-2").withThread("2").withProcessedItems(1).withTimePlusMinutes(clock, 4));
     }
 
     @Test
     @DisplayName("expect results averaged and grouped by thread")
-    void testAveragedGrouped() {
-        MeanFlux query = Flux.from(influxDBContainer.getBucket())
-                .range(-5L, ChronoUnit.MINUTES)
-                .groupBy("thread")
-                .mean();
+    void testGroupByMean() {
+        Flux query = Flux.from(influxDBContainer.getBucket())
+            .range(start, end)
+            .groupBy("thread")
+            .mean();
 
         List<PerformanceMeasurement> result = queryApi.executeQuery(query);
 
         assertThat(result)
-                .hasSize(2)
-                .anyMatch(matchThread(performanceMeasurement().withThread("1").withProcessedItems(4)))
-                .anyMatch(matchThread(performanceMeasurement().withThread("2").withProcessedItems(2)));
+            .hasSize(2)
+            .anyMatch(matchThread(performanceMeasurement().withThread("1").withProcessedItems(4)))
+            .anyMatch(matchThread(performanceMeasurement().withThread("2").withProcessedItems(2)));
 
     }
 
     @Test
     @DisplayName("expect results where processed items are summed up grouped by host")
-    void testSum() {
-        SumFlux query = Flux.from(influxDBContainer.getBucket())
-                .range(-5L, ChronoUnit.MINUTES)
-                .groupBy("host")
-                .sum();
+    void testGroupBySum() {
+        Flux query = Flux.from(influxDBContainer.getBucket())
+            .range(start, end)
+            .groupBy("host")
+            .sum();
 
         List<PerformanceMeasurement> result = queryApi.executeQuery(query);
 
         assertThat(result)
-                .hasSize(2)
-                .anyMatch(matchHost(performanceMeasurement().withHost("host-1").withProcessedItems(9)))
-                .anyMatch(matchHost(performanceMeasurement().withHost("host-2").withProcessedItems(3)));
+            .hasSize(2)
+            .anyMatch(matchHost(performanceMeasurement().withHost("host-1").withProcessedItems(9)))
+            .anyMatch(matchHost(performanceMeasurement().withHost("host-2").withProcessedItems(3)));
     }
 
     @Test
     @DisplayName("expect a total of processed items are calculated")
-    void testSumUngroup() {
-        SumFlux query = Flux.from(influxDBContainer.getBucket())
-                .range(-5L, ChronoUnit.MINUTES)
-                .groupBy("")
-                .sum();
+    void testTotalSum() {
+        Flux query = Flux.from(influxDBContainer.getBucket())
+            .range(start, end)
+            .groupBy("")
+            .sum();
 
         List<PerformanceMeasurement> result = queryApi.executeQuery(query);
 
         assertThat(result)
-                .hasSize(1)
-                .anyMatch(matchHost(performanceMeasurement().withProcessedItems(12)));
+            .hasSize(1)
+            .anyMatch(matchHost(performanceMeasurement().withProcessedItems(12)));
     }
 
     @Test
     @DisplayName("expect 0.99 percentile group by host")
     void testQuantileGrouped() {
-        QuantileFlux query = Flux.from(influxDBContainer.getBucket())
-                .range(-5L, ChronoUnit.MINUTES)
-                .groupBy("host")
-                .quantile(Float.valueOf("0.99"));
+        Flux query = Flux.from(influxDBContainer.getBucket())
+            .range(start, end)
+            .groupBy("host")
+            .quantile(Float.valueOf("0.99"));
 
         List<PerformanceMeasurement> result = queryApi.executeQuery(query);
 
         assertThat(result)
-                .hasSize(2)
-                .anyMatch(matchHost(performanceMeasurement().withHost("host-1").withProcessedItems(6)))
-                .anyMatch(matchHost(performanceMeasurement().withHost("host-2").withProcessedItems(2)));
+            .hasSize(2)
+            .anyMatch(matchHost(performanceMeasurement().withHost("host-1").withProcessedItems(6)))
+            .anyMatch(matchHost(performanceMeasurement().withHost("host-2").withProcessedItems(2)));
     }
 
     @Test
-    @DisplayName("expect 0.99 percentile")
+    @DisplayName("expect 0.99 percentile ungrouped")
     void testQuantileUngrouped() {
-        QuantileFlux query = Flux.from(influxDBContainer.getBucket())
-                .range(-5L, ChronoUnit.MINUTES)
-                .groupBy("")
-                .quantile(Float.valueOf("0.99"));
+        Flux query = Flux.from(influxDBContainer.getBucket())
+            .range(start, end)
+            .groupBy("")
+            .quantile(0.99f);
 
         List<PerformanceMeasurement> result = queryApi.executeQuery(query);
 
         assertThat(result)
-                .hasSize(1)
-                .anyMatch(matchHost(performanceMeasurement().withHost("host-1").withProcessedItems(6)));
+            .hasSize(1)
+            .anyMatch(matchHost(performanceMeasurement().withHost("host-1").withProcessedItems(6)));
     }
 
     @Test
-    @DisplayName("calculate the mean (average) items processed by each host in a six minute window")
-    void testMeanWindowed() {
-        YieldFlux query = Flux.from(influxDBContainer.getBucket())
-                .range(-5L, ChronoUnit.MINUTES)
-                .groupBy("host")
-                .aggregateWindow(6L, ChronoUnit.MINUTES, "mean").withCreateEmpty(false)
-                .yield("mean");
+    @DisplayName("calculate average items processed by hosts in a one minute window without creating empty values")
+    void testMeanUngroupedWindowed() {
+        Flux query = Flux.from(influxDBContainer.getBucket())
+            .range(start, end)
+            .groupBy("host")
+            .aggregateWindow(1L, ChronoUnit.MINUTES, "mean").withCreateEmpty(false)
+            .yield("mean");
 
         List<PerformanceMeasurement> result = queryApi.executeQuery(query);
 
         assertThat(result)
-                .hasSize(2)
-                .anyMatch(matchHost(performanceMeasurement().withHost("host-1").withProcessedItems(4.5)))
-                .anyMatch(matchHost(performanceMeasurement().withHost("host-2").withProcessedItems(1.5)));
+            .hasSize(2)
+            .anyMatch(matchHost(performanceMeasurement().withHost("host-1").withProcessedItems(4.5)))
+            .anyMatch(matchHost(performanceMeasurement().withHost("host-2").withProcessedItems(1.5)));
     }
 
     Predicate<PerformanceMeasurement> matchThread(PerformanceMeasurement performanceMeasurement) {

@@ -5,7 +5,6 @@ import com.influxdb.annotations.Measurement;
 import org.testcontainers.shaded.org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.testcontainers.shaded.org.apache.commons.lang3.builder.ToStringStyle;
 
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -53,8 +52,8 @@ public class PerformanceMeasurement {
         return this;
     }
 
-    PerformanceMeasurement withTimePlusMinutes(Clock clock, int minutes) {
-        return withTime(Instant.now(clock).plus(Duration.ofMinutes(minutes).withSeconds(0)));
+    PerformanceMeasurement withTimePlusMinutes(Instant offset, int minutes) {
+        return withTime(offset.plus(Duration.ofMinutes(minutes).withSeconds(0)));
     }
 
     @Override

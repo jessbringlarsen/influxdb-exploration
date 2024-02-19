@@ -11,14 +11,12 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.function.Predicate;
 
 import static dk.bringlarsen.influxdbexploration.PerformanceMeasurement.performanceMeasurement;
-import static java.time.ZoneId.of;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -46,17 +44,15 @@ class FluxExplorationTest {
     private final Instant start = Instant.parse("2023-10-15T10:00:00.00Z");
     private final Instant end = Instant.parse("2023-10-15T10:05:00.00Z");
 
-
     @BeforeEach
     void setup() {
         queryApi = new InfluxDbQueryApi(influxDBContainer);
 
-        Clock clock = Clock.fixed(start, of("UTC"));
         new InfluxDbWriteApi(influxDBContainer).cleanAndWrite(
-            performanceMeasurement().withHost("host-1").withThread("1").withProcessedItems(6).withTimePlusMinutes(clock, 1),
-            performanceMeasurement().withHost("host-2").withThread("1").withProcessedItems(2).withTimePlusMinutes(clock, 2),
-            performanceMeasurement().withHost("host-1").withThread("2").withProcessedItems(3).withTimePlusMinutes(clock, 3),
-            performanceMeasurement().withHost("host-2").withThread("2").withProcessedItems(1).withTimePlusMinutes(clock, 4));
+            performanceMeasurement().withHost("host-1").withThread("1").withProcessedItems(6).withTimePlusMinutes(start, 1),
+            performanceMeasurement().withHost("host-2").withThread("1").withProcessedItems(2).withTimePlusMinutes(start, 2),
+            performanceMeasurement().withHost("host-1").withThread("2").withProcessedItems(3).withTimePlusMinutes(start, 3),
+            performanceMeasurement().withHost("host-2").withThread("2").withProcessedItems(1).withTimePlusMinutes(start, 4));
     }
 
     @Test

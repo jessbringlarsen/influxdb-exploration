@@ -109,7 +109,7 @@ class FluxExplorationTest {
         Flux query = Flux.from(influxDBContainer.getBucket())
             .range(start, end)
             .groupBy("host")
-            .quantile(Float.valueOf("0.99"));
+            .quantile(0.99f);
 
         List<PerformanceMeasurement> result = queryApi.executeQuery(query);
 

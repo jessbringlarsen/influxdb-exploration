@@ -26,13 +26,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  * |----|----|----|----|
  * 0    1    2    3    4
  *      |    |    |    |
- *      |    |    |    +---> host=host-2, thread=2, processedItems=1
+ *      |    |    |    +---> host=host-2, thread=thread-2, processedItems=1
  *      |    |    |
- *      |    |    +--------> host=host-1, thread=2, processedItems=3
+ *      |    |    +--------> host=host-1, thread=thread-2, processedItems=3
  *      |    |
- *      |    +-------------> host=host-2, thread=1, processedItems=2
+ *      |    +-------------> host=host-2, thread=thread-1, processedItems=2
  *      |
- *      +------------------> host=host-1, thread=1, processedItems=6
+ *      +------------------> host=host-1, thread=thread-1, processedItems=6
  */
 @Testcontainers
 class FluxExplorationTest {

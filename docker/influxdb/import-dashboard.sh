@@ -1,3 +1,3 @@
 #!/bin/bash
 
-influx apply -f dashboard.json --force yes
+influx apply -f /home/influxdb/dashboard.json --force yes

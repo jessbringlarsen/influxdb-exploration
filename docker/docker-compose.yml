@@ -8,6 +8,7 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile
+    image: app-01:latest
     hostname: "app-01"
     networks:
       - monitoring

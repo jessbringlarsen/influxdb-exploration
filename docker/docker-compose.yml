@@ -8,6 +8,7 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile
+    hostname: "app-01"
     networks:
       - monitoring
     healthcheck:
@@ -26,6 +27,7 @@ services:
     command: [ "telegraf", "--config",  "/app/telegraf.conf" ]
 
   influxdb:
+    hostname: "influxdb-01"
     image: influxdb:latest
     ports:
       - "8086:8086"
@@ -45,6 +47,7 @@ services:
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUX_TOKEN}
 
   grafana:
+    hostname: "grafana-01"
     image: grafana/grafana:latest
     ports:
       - "3000:3000"

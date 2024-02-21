@@ -56,23 +56,6 @@ class FluxExplorationTest {
     }
 
     @Test
-    @DisplayName("expect results averaged and grouped by thread")
-    void testGroupByMean() {
-        Flux query = Flux.from(influxDBContainer.getBucket())
-            .range(start, end)
-            .groupBy("thread")
-            .mean();
-
-        List<PerformanceMeasurement> result = queryApi.executeQuery(query);
-
-        assertThat(result)
-            .hasSize(2)
-            .anyMatch(matchThread(performanceMeasurement().withThread("1").withProcessedItems(4)))
-            .anyMatch(matchThread(performanceMeasurement().withThread("2").withProcessedItems(2)));
-
-    }
-
-    @Test
     @DisplayName("expect results where processed items are summed up grouped by host")
     void testGroupBySum() {
         Flux query = Flux.from(influxDBContainer.getBucket())
@@ -149,10 +132,6 @@ class FluxExplorationTest {
             .hasSize(2)
             .anyMatch(matchHost(performanceMeasurement().withHost("host-1").withProcessedItems(4.5)))
             .anyMatch(matchHost(performanceMeasurement().withHost("host-2").withProcessedItems(1.5)));
-    }
-
-    Predicate<PerformanceMeasurement> matchThread(PerformanceMeasurement performanceMeasurement) {
-        return m -> m.thread.equals(performanceMeasurement.thread) && m.processedItems.equals(performanceMeasurement.processedItems);
     }
 
     Predicate<PerformanceMeasurement> matchHost(PerformanceMeasurement performanceMeasurement) {

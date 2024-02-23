@@ -1,5 +1,3 @@
-version: "3.8"
-
 networks:
   monitoring:
 
@@ -8,6 +6,14 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile
+    develop:
+      watch:
+        - action: sync
+          path: telegraf/telegraf.conf
+          target: /app/telegraf.conf
+        - action: sync
+          path: ../target/influxdb-exploration
+          target: /app/app
     image: app-01:latest
     hostname: "app-01"
     networks:
@@ -25,7 +31,7 @@ services:
       - INFLUX_ORG=${INFLUX_ORG}
       - INFLUX_BUCKET=${INFLUX_BUCKET}
       - LOG_FILE=${LOG_FILE}
-    command: [ "telegraf", "--config",  "/app/telegraf.conf" ]
+    command: [ "telegraf", "--config",  "/app/telegraf.conf", "--watch-config", "inotify" ]
 
   influxdb:
     hostname: "influxdb-01"

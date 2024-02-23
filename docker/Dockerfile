@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:latest
+
 FROM alpine:latest
 RUN apk add telegraf gcompat jq
 

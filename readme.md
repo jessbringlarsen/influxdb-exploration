@@ -19,7 +19,7 @@ To build the docker image issue the following command in the project root direct
 
 Located in the root project directory issue the command:
 
-    docker compose -f docker/docker-compose.yml -f docker/docker-compose.local.yml --env-file docker/local.env watch
+    docker compose -f docker/docker-compose.yml --env-file docker/local.env watch
 
 Note: The compose file is using the [Compose Develop](https://docs.docker.com/compose/compose-file/develop/) specification to sync the
 telegraf configuration and performance simulation application to the running container on changes.

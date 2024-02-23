@@ -3,16 +3,6 @@
 This is a personal InfluxDB and Grafana exploration project. The project include InfluxDB and Grafana provisioning and 
 functionality to generate random load data. Lastly tests exists that explore the Flux query language.
 
-## Run
-
-To start the solution and deploy InfluxDB, Grafana and the performance simulation application execute from the project root directory:
-
-    docker compose -f docker/docker-compose.yml -f docker/docker-compose.local.yml --env-file docker/local.env watch
-
-The compose file is using the [Compose Develop](https://docs.docker.com/compose/compose-file/develop/) specification to sync the 
-telegraf configuration and performance simulation application to the running container on changes. 
-
-
 ## Build
 
     sdk env
@@ -29,7 +19,10 @@ To build the docker image issue the following command in the project root direct
 
 Located in the root project directory issue the command:
 
-    docker compose -f docker/docker-compose.yml -f docker/docker-compose.local.yml --env-file=docker/local.env up -d
+    docker compose -f docker/docker-compose.yml -f docker/docker-compose.local.yml --env-file docker/local.env watch
+
+Note: The compose file is using the [Compose Develop](https://docs.docker.com/compose/compose-file/develop/) specification to sync the
+telegraf configuration and performance simulation application to the running container on changes.
 
 Enter a shell on the container `influxdb-exploration-app-1` and do 
 
